@@ -11,3 +11,4 @@
 .gradle/
 .nb-gradle/
 
+/node_modules/

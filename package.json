@@ -1,11 +1,23 @@
 {
-  "author": "",
-  "name": "fileapi",
-  "version": "0.0.0",
+  "author": "Ibrahim Sallam",
+  "name": "bity.js",
+  "version": "0.0.1",
+  "description": "",
   "repository": "websockets/ws",
   "dependencies": {
-    "ansi": "https://github.com/einaros/ansi.js/tarball/master",
+    "bindings": "^1.2.1",
     "express": "^4.14.1",
+    "nan": "^2.7.0",
+    "node-gyp": "^3.6.2",
     "ws": "^3.2.0"
-  }
+  },
+  "main": "server.js",
+  "devDependencies": {},
+  "scripts": {
+    "compile": "node-gyp rebuild",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "license": ""
 }
