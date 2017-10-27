@@ -1,0 +1,289 @@
+<html>
+<head>
+    <title>Graph Navigator</title>
+    <link href="css/app.css" rel="stylesheet" type="text/css">
+    <link href="css/header.css" rel="stylesheet" type="text/css">
+    <link href="css/tooltip.css" rel="stylesheet" type="text/css">
+    <link href="css/locate.css" rel="stylesheet" type="text/css">
+
+    <script src="libs/dagre.js"></script>
+    <script src="libs/sigma.core.js"></script>
+    <script src="libs/conrad.js"></script>
+    <script src="libs/utils/sigma.utils.js"></script>
+    <script src="libs/utils/sigma.polyfills.js"></script>
+    <script src="libs/sigma.settings.js"></script>
+    <script src="libs/classes/sigma.classes.dispatcher.js"></script>
+    <script src="libs/classes/sigma.classes.configurable.js"></script>
+    <script src="libs/classes/sigma.classes.graph.js"></script>
+    <script src="libs/classes/sigma.classes.camera.js"></script>
+    <script src="libs/classes/sigma.classes.quad.js"></script>
+    <script src="libs/captors/sigma.captors.mouse.js"></script>
+    <script src="libs/captors/sigma.captors.touch.js"></script>
+    <script src="libs/renderers/sigma.renderers.canvas.js"></script>
+    <script src="libs/renderers/sigma.renderers.webgl.js"></script>
+    <script src="libs/renderers/sigma.renderers.svg.js"></script>
+    <script src="libs/renderers/sigma.renderers.def.js"></script>
+    <script src="libs/renderers/webgl/sigma.webgl.nodes.def.js"></script>
+    <script src="libs/renderers/webgl/sigma.webgl.nodes.fast.js"></script>
+    <script src="libs/renderers/webgl/sigma.webgl.edges.def.js"></script>
+    <script src="libs/renderers/webgl/sigma.webgl.edges.fast.js"></script>
+    <script src="libs/renderers/webgl/sigma.webgl.edges.arrow.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.labels.def.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.hovers.def.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.nodes.def.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edges.def.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edges.curve.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edges.arrow.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edges.curvedArrow.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edgehovers.def.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edgehovers.curve.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edgehovers.arrow.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.edgehovers.curvedArrow.js"></script>
+    <script src="libs/renderers/canvas/sigma.canvas.extremities.def.js"></script>
+    <script src="libs/renderers/svg/sigma.svg.utils.js"></script>
+    <script src="libs/renderers/svg/sigma.svg.nodes.def.js"></script>
+    <script src="libs/renderers/svg/sigma.svg.edges.def.js"></script>
+    <script src="libs/renderers/svg/sigma.svg.edges.curve.js"></script>
+    <script src="libs/renderers/svg/sigma.svg.edges.curvedArrow.js"></script>
+    <script src="libs/renderers/svg/sigma.svg.labels.def.js"></script>
+    <script src="libs/renderers/svg/sigma.svg.hovers.def.js"></script>
+    <script src="libs/middlewares/sigma.middlewares.rescale.js"></script>
+    <script src="libs/middlewares/sigma.middlewares.copy.js"></script>
+    <script src="libs/misc/sigma.misc.animation.js"></script>
+    <script src="libs/misc/sigma.misc.bindEvents.js"></script>
+    <script src="libs/misc/sigma.misc.bindDOMEvents.js"></script>
+    <script src="libs/misc/sigma.misc.drawHovers.js"></script>
+
+    <!-- some plugins to try -->
+    <script src="libs/plugins/sigma.layouts.forceLink/worker.js"></script>
+    <script src="libs/plugins/sigma.layouts.forceLink/supervisor.js"></script>
+    <script src="libs/plugins/sigma.layouts.dagre/sigma.layout.dagre.js"></script>
+    <script src="libs/plugins/sigma.plugins.animate/sigma.plugins.animate.js"></script>
+
+    <!--- for dragging --->
+    <script src="libs/plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
+
+    <script src="libs/plugins/sigma.helpers.graph/sigma.helpers.graph.js"></script>
+    <script src="libs/plugins/sigma.plugins.activeState/sigma.plugins.activeState.js"></script>
+    <script src="libs/plugins/sigma.plugins.select/sigma.plugins.select.js"></script>
+    <script src="libs/plugins/sigma.plugins.keyboard/sigma.plugins.keyboard.js"></script>
+
+    <!-- for tooltip -->
+    <script src="libs/plugins/sigma.plugins.tooltips/sigma.plugins.tooltips.js"></script>
+    <script src="libs/mustache.min.js"></script>
+
+    <!-- for lcoate -->
+    <script src="libs/plugins/sigma.plugins.locate/sigma.plugins.locate.js"></script>
+
+    <!-- for fullscreen -->
+    <script src="libs/plugins/sigma.plugins.fullScreen/sigma.plugins.fullScreen.js"></script>
+
+    <!-- We probably need these for images... etc -->
+    <script src="libs/plugins/sigma.renderers.linkurious/settings.js"></script>
+    <!--
+    <script src="libs/plugins/sigma.renderers.linkurious/webgl/sigma.webgl.nodes.def.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/webgl/sigma.webgl.nodes.fast.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/webgl/sigma.webgl.edges.def.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/webgl/sigma.webgl.edges.fast.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/webgl/sigma.webgl.edges.arrow.js"></script>
+    -->
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.labels.def.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.hovers.def.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.nodes.def.js"></script>
+    <!--
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.nodes.cross.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.nodes.diamond.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.nodes.equilateral.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.nodes.square.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.nodes.star.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.edges.def.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.edges.curve.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.edges.arrow.js"></script>
+    <script src="libs/plugins/sigma.renderers.linkurious/canvas/sigma.canvas.edges.curvedArrow.js"></script>
+    -->
+
+    <!-- for Edge labels -->
+    <script src="libs/plugins/sigma.renderers.edgeLabels/settings.js"></script>
+    <script src="libs/plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.def.js"></script>
+    <script src="libs/plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.curve.js"></script>
+    <script src="libs/plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.curvedArrow.js"></script>
+    
+    <!-- for halo -->
+    <script src="libs/plugins/sigma.renderers.halo/settings.js"></script>
+    <script src="libs/plugins/sigma.renderers.halo/sigma.renderers.halo.js"></script>
+
+    <!-- for legend -->
+    <script src="libs/plugins/sigma.plugins.design/sigma.plugins.design.js"></script>
+    <script src="libs/plugins/sigma.plugins.legend/settings.js"></script>
+    <script src="libs/plugins/sigma.plugins.legend/sigma.plugins.legend.js"></script>
+
+    <!-- for lasso -->
+    <script src="libs/plugins/sigma.plugins.lasso/sigma.plugins.lasso.js"></script>
+
+    <!-- for this force layout -->
+    <script src="libs/plugins/sigma.plugins.animate/sigma.plugins.animate.js"></script>
+    <script src="libs/plugins/sigma.layouts.fruchtermanReingold/sigma.layout.fruchtermanReingold.js"></script>
+
+
+</head>
+
+<body onload="doInit()">
+    <script type="text/javascript" src="js/graphSettings.js"   ></script>
+    <script type="text/javascript" src="js/toolTip.js"         ></script>
+    <script type="text/javascript" src="js/pattern.js"         ></script>
+    <script type="text/javascript" src="js/doQuery.js"         ></script>
+    <script type="text/javascript" src="js/doSearch.js"        ></script>
+    <script type="text/javascript" src="js/webSocketHandler.js"></script>
+    <script type="text/javascript" src="js/utils.js"           ></script>
+    <script type="text/javascript" src="js/app.js"             ></script>
+
+    <div id="container">
+        <div id="appContainer">
+            <div id="selection-pane">
+                <select id="qOption" onchange=processSelection()>
+                    <option value="Q01">Get Block</option>
+                    <option value="Q02">Block to Address</option>
+                    <option value="Q03">Satoshi N. Analysis</option>
+                    <option value="Q04">Wikileaks 1</option>
+                    <option value="Q05">One to Many</option>
+                    <option value="Q06">Many to One</option>
+                    <option value='Q07'>Not Generated 1</option>
+                    <option value='Q08'>Not Generated 2</option>
+                </select>
+                <input type="button" value="Run" onclick="doQuery()"/>
+            </div>
+            <textarea id="qbox" cols="100" rows="3"></textarea>
+            <div id="max-results-pane">
+                <label>Max Results
+                <input type="number" id="max-results" value="50">
+                </label>
+            </div>
+        </div>
+
+        <div id="workContainer" class="noselect">
+            <div id="graphContainer"> </div>
+            <div id="options-btn-set" class="noselect">
+                <div class="locateGroup" style="cursor: pointer">
+                  <!--
+                    <div id="locate-pane" class="locateHover">
+                        <h2 class="underline">Search</h2>
+                        <div>
+                            <div>Block</div>
+                            <input type="text" id="person-select" 
+                                   list="person-datalist" placeholder="John Doe" onkeyup="doPersonAutoComplete()">
+                            <datalist id="person-datalist"></datalist>
+                            <span class="line"></span>
+                            <div>Domain</div>
+                            <input type="text" id="domain-select"
+                                   list="domain-datalist" placeholder="domain.com" onkeyup="doDomainAutoComplete()">
+                            <datalist id="domain-datalist"></datalist>
+                            <span class="line"></span>
+                            <input type="button" class="app-btn" value="Search" onclick="doSearchPersonToDomain()"/>
+                        </div>
+                        <span class="line"></span>
+                    </div>
+                    -->
+                  <div style="cursor:pointer" >
+                    <img src="icons/search2.png" alt="search" width='24'/>
+                    </div>
+                </div>
+                <div style="cursor: pointer">
+                    <img src="icons/reset_button_blue.png" alt="ResetView" width='24'
+                         id="reset-view-btn" onclick="doResetView()"/>
+                </div>
+                <div style="cursor: pointer">
+                    <img src="icons/layout1.png" alt="Layout1" width='24'
+                         id="layout1-btn" onclick="doLayout1View()"/>
+                </div>
+                <div style="cursor: pointer">
+                    <img src="icons/layout2.png" alt="Layout2" width='24'
+                         id="layout2-btn" onclick="doLayout2View()"/>
+                </div>
+                <div style="cursor: pointer">
+                    <img src="icons/layout3.png" alt="Layout3" width='24'
+                         id="layout3-btn" onclick="doLayout3View()"/>
+                </div>
+                <div>
+                    <img src="icons/mouse_cursor_s.png" alt="SelectSimilar" width='24'
+                         id="select-nodes-btn" onclick="doSelectNodes()"/>
+                </div>
+                <div>
+                    <img src="icons/similar_s.png" alt="Similar" width='24'
+                         id="similar-nodes-btn" onclick="doNodeSimilarity()"/>
+                </div>
+                <div>
+                    <img src="icons/mouse_cursor_p.png" alt="SelectPattern" width='24'
+                         id="select-nodes-pattern-btn" onclick="doPatternSelect()"/>
+                </div>
+                <div>
+                    <img src="icons/similar_p.png" alt="Pattern" width='24'
+                         id="similar-nodes-pattern-btn" onclick="doPatternSimilarity()"/>
+                    <!-- Modal configuration for selected pattern -->
+                    <div id="pattern-config">
+                      <!-- Modal content -->
+                      <div id="pattern-config-content">
+                        <p>... PATTERN ...</p>
+                        <div id="pattern-config-content-internal"></div>
+                        <div id="class-attributes-config"></div>
+                        <input type="button" id="done-pattern-config" class="app-btn" value="Done"/>
+                      </div>
+
+                    </div>
+                </div>
+                <!--
+                <div class="tableGroup">
+                    <div id="table-pane" class="tableHover">
+                        <h2 class="underline">Transaction</h2>
+                        <div>
+                            <table id="resultsTable">
+                                <tr>
+                                    <th>Hash</th>
+                                    <th># Inputs</th>
+                                    <th># Outputs</th>
+                                </tr>
+                            </table>
+                        </div>
+                        <span class="line"></span>
+                    </div>
+                    <img src="icons/table.png" alt="Select" width='24'
+                         id="table-btn" onclick="doShowResultsTable()"/>
+                </div>
+                -->
+            </div>
+            <div class="noselect">
+              <img src="icons/model.png" alt="Model" width='500' id="model-graph" style="visibility: hidden"/>
+              <img src="icons/documents1.png" alt="Documents" width='24' id="documents-btn" style="cursor:pointer"
+                   onclick="toggleModelDisplay()"/>
+              <img src="icons/fullScreen.png" alt="FullScreen" width='24' id="graph-btn" style="cursor:pointer"/>
+            </div>
+            <div id="status-pane" class="noselect">
+                <textarea id="statusBox" readonly></textarea>
+                <h3> Bitcoin Graph Demo
+                    <div>
+                        <img src="icons/Objy_logo.png" alt="Objectivity" height="32px" />
+                        <img src="icons/logo.png" alt="Bitcoin Graph Demo" height="32px" />
+                    </div>
+                </h3>
+            </div>
+             <!--<i id="graph-btn"></i>-->
+            <div class="gc-s">
+                <header id="gc1-header">[G1]</header>
+                <div id="gc1"></div>
+            </div>
+            <div class="gc-s">
+                <header id="gc2-header">[G2]</header>
+                <div id="gc2"></div>
+            </div>
+            <div class="gc-s">
+                <header id="gc3-header">[G3]</header>
+                <div id="gc3" ></div>
+            </div>
+            <div class="gc-s">
+                <header id="gc4-header">[G4]</header>
+                <div id="gc4" ></div>
+            </div>
+         </div>
+    </div>
+</body>
+
+</html>

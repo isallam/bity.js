@@ -1,0 +1,119 @@
+
+header {
+    /*width:98%;*/
+    /*position: absolute;;*/
+    left: 10px;
+    right: 10px;
+    /*height: 40px;*/
+    /*top: 2px;*/
+    background-color: #92B6D5;
+}
+
+header p {
+    font-variant: small-caps;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#container {
+    /*position: relative;*/
+    /*top: 45px;*/
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    height: 99%;
+    /*background: #838487;*/
+    background-color: #92B6D5;
+    box-shadow: 5px 5px 10px #999999 inset;
+}
+
+#appContainer {
+    /*position: absolute;*/
+    /*top: 40px;*/
+    /*width: 99%;*/
+    /*left: 3px;*/
+    /*right: 3px;*/
+    height: 60px;
+    /*background: #838487;*/
+    display:block;
+    /*z-index: 100; */
+    /*opacity:0.8;*/
+    border: 2px solid gray;
+}
+
+#selection-pane {
+    /*top: 2px;*/
+    /*left: 10px;*/
+    /*position: absolute;*/
+    float: left;
+    width: 154px;
+    /*background-color: rgb(249, 247, 237);*/
+    /*opacity:0.6;*/
+}
+
+#selection-pane select, input{
+	/*float:left;*/
+ 	width:95%;
+    height: 40%;
+	background-color: #4C6A92;
+	font-size:14px;
+	/*line-height:16px;*/
+	text-align:center;
+    color:white;
+	/*display:block;*/
+    border-radius: 4px;
+	/*opacity:0.8;*/
+	/*border:2px solid #838487;*/
+    margin: 3px 3px 3px 3px;
+    box-shadow: 3px 3px 6px #999999;
+    /*text-decoration: none;*/
+}
+
+/*#do-pane {*/
+    /*!*top: 2px;*!*/
+    /*left: 174px;*/
+    /*!*position: absolute;*!*/
+    /*!*width: 150px;*!*/
+    /*!*background-color: rgb(249, 247, 237);*!*/
+    /*!*box-shadow: 0 2px 6px rgba(0,0,0,0.3);*!*/
+    /*!*opacity:0.6;*!*/
+/*}*/
+
+#appContainer textarea {
+    /*float:left;*/
+    color:white;
+    background-color:#4C6A92;
+    font-size:14px;
+    /*line-height:12px;*/
+    text-align:left;
+    /*opacity:0.8;*/
+    /*border:5px solid gray;*/
+    margin: 3px 3px 3px 3px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    box-sizing:border-box;
+    max-height: 99%;
+    max-width: 70%;
+}
+
+#max-results-pane {
+    font-size:14px;
+    /*top: 2px;*/
+    /*right: 10px;*/
+    /*position: absolute;*/
+    float:right;
+    width: 150px;
+    /*background-color: rgb(249, 247, 237);*/
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    /*opacity:0.6;*/
+    text-align:center;
+}
+#max-results-pane label {
+    /*color: white;*/
+    /*background-color: #000999;*/
+
+    font-size: 12pt;
+    font-style: italic;
+    color: white;
+}
+
