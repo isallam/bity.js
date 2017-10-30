@@ -68,6 +68,8 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   ObjyAccess* obj = ObjectWrap::Unwrap<ObjyAccess>(info.Holder());
   string qString;
+  v8::Local<v8::Function> cb;
+  int maxResults = -1;
   
   if (info[0]->IsString())
   {
@@ -81,12 +83,18 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       v8::String::NewFromUtf8(isolate, "Missing valid query string.")));
     return;
   }
-  v8::Local<v8::Function> cb = info[1].As<v8::Function>();
+  if (info.Length() > 2) {
+    maxResults = info[1]->NumberValue();
+    cb = info[2].As<v8::Function>();
+  }
+  else {
+    cb = info[1].As<v8::Function>();
+  }
   const int argc = 1;
   
   try {
       //printf("Executing Query: '%s'\n", qString);
-      objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::Update, "write");
+      objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::ReadOnly, "read");
       //const objy::expression::language::Language* lang = objy::expression::language::LanguageRegistry::lookupLanguage("DO");
       //objy::expression::ExpressionTreeHandle eHandle = lang->parse(queryString);
       //eHandle->addRef();
@@ -104,14 +112,18 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       if (logicalType == objy::data::LogicalType::Sequence) {
         objy::data::Sequence sequence = results.get<objy::data::Sequence>();
         objy::data::Variable sequenceItem;
-        
+        int count = 0;
         while (sequence.next()) {
           sequence.current(sequenceItem);
           stringstream os;
           sequenceItem.toJSON(os);
-          string queryResults = "Sequence Query results: " + os.str();
-          v8::Local<v8::Value> argv[argc] = { Nan::New(queryResults.c_str()).ToLocalChecked() };
+//          string queryResults = "Sequence Query results: " + os.str();
+//          v8::Local<v8::Value> argv[argc] = { Nan::New(queryResults.c_str()).ToLocalChecked() };
+          v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
           Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+          count++;
+          if (maxResults != -1 && count >= maxResults)
+            break;
         }
       } 
       else {

@@ -35,6 +35,18 @@ wss.on('connection', function (ws) {
     if (typeof data === 'string') {
       messageData = JSON.parse(data);
       console.log("message: ", messageData);
+      qType       = messageData['qType'];
+      qContext    = messageData['qContext'];
+      doStatement = messageData['doStatement']
+      maxResult   = messageData['maxResult']
+      if (qType == 'DOQuery') {
+        count = 0;
+        doAccess.query(doStatement, Number(maxResult), function(res) {
+          console.log('result: ', res)
+          // ws.send(JSON.stringify({event: 'complete', path: currentFile.path}));
+          count++;
+        })
+      }
     } else {
       console.log("message ignored: ", data);
     }
