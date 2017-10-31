@@ -60,29 +60,21 @@ var WebSocketHandler = {
         //console.log("Message is received...");
         var received_msg = message.data;
         try {
-            var json = JSON.parse(received_msg);
+          var json = JSON.parse(received_msg);
+          console.log("GOT: ", json);
+          console.log("GotData: ", json.data);
+          if (json.moreResults) {
+            if (this.resultHandler !== null)
+                this.resultHandler.processResult(json.context, json.data);
+          } else {
+            writeToStatus('Query Completed... ');
+            if (this.resultHandler !== null)
+                this.resultHandler.executeCompleted(json.context);
+          }
         } catch (e) {
             //console.log('This doesn\'t look like a valid JSON: ', received_msg);
             writeToStatus('Error in received JSON (invalid): ' + received_msg);
             return;
-        }
-        if (json.type === "EndOfResults") {
-            //console.log("DONE:   received_msg = <" + received_msg + ">");
-            writeToStatus('Query Completed... ');
-            if (this.resultHandler !== null)
-                this.resultHandler.executeCompleted(json.context);
-        } else {
-            // console.log('json.type: ' + json.type);
-            if (json.type === 'message') { // it's a single message
-                // console.log("GOT: ", json.data);
-                var qResult = JSON.parse(json.data);
-                //console.log("GotData: ", qResult);
-                if (this.resultHandler !== null)
-                    this.resultHandler.processResult(qResult);
-
-            } else {
-                console.log('Hmm..., I\'ve never seen JSON like this: ', json);
-            }
         }
         //msg_section.append($('<li>').text(received_msg));
     },

@@ -43,9 +43,10 @@ wss.on('connection', function (ws) {
         count = 0;
         doAccess.query(doStatement, Number(maxResult), function(res) {
           console.log('result: ', res)
-          // ws.send(JSON.stringify({event: 'complete', path: currentFile.path}));
+          ws.send(JSON.stringify({context: qContext, data: JSON.parse(res), moreResults: true}));
           count++;
         })
+        ws.send(JSON.stringify({context: qContext, data: null, moreResults: false}));
       }
     } else {
       console.log("message ignored: ", data);

@@ -147,8 +147,7 @@ function getTemplate(nodeLabel) {
 
 }
 
-function getNodeSize (node) {
-	var label = node.label;
+function getNodeSize (label) {
 	var retVal = 6;
 
 //	if (label === 'Transaction') {
@@ -163,8 +162,7 @@ function getNodeSize (node) {
 	return retVal
 };
 
-function getColor (node) {
-	var label = node.label;
+function getColor (label) {
 	var retVal = '#556677'
 
 	if (!iconUrls[label]) {

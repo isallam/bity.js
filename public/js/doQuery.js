@@ -489,54 +489,74 @@ var DoQuery = {
      *
      * @param qResult
      */
-    processResult: function (qResult)
+    processResult: function (context, qResult)
     {
         //console.log(".... I'll handle your data:", qResult);
-        //console.log(".... processsing for context:", qResult.context);
+        //console.log(".... processsing for context:", context);
 
-        var sGraph = this.contextList[qResult.context]
+        var sGraph = this.contextList[context]
 
-        // var c = this.colors[Math.floor(Math.random() * this.colors.length)];
-        if ((qResult.node != null) &&
-                (sGraph.graph.nodes(qResult.node.id) == null))
-            sGraph.graph.addNode({
-                id: qResult.node.id,
-                label: qResult.node.label,
+        if (qResult.__class__ == '_Projection')
+        {
+          var elemArray = qResult.p
+          for (var i = 0; i < elemArray.length; i++ ) {
+            var elemObj = elemArray[i]
+            var fromId = elemObj.from
+            var fromClass = elemObj.fromClass
+            if (sGraph.graph.nodes(fromId) == null) {
+              sGraph.graph.addNode( {
+                id: fromId,
+                label: fromClass,
                 x: Math.random(),
                 y: Math.random(),
                 level: 3,
-                size: getNodeSize(qResult.node), //Math.random(),
-                color: getColor(qResult.node), //'#666',
+                size: getNodeSize(fromClass), //Math.random(),
+                color: getColor(fromClass), //'#666',
                 image: {
-                    url: getUrl(qResult.node.label),
+                    url: getUrl(fromClass),
                     // scale/clip are ratio values applied on top of 'size'
                     scale: 1.2,
                     clip: 1.0,
                 },
-                // data: {
-                //      oid: qResult.node.data.oid,
-                //      m_Id: qResult.node.data.m_Id,
-                //      edges: qResult.node.data.edges
-                //    }
-                data: qResult.node.data
-            })
-        function getEdgeColor(graph, nodeId) {
-            return graph.nodes(nodeId).color;
+                data: null
+              })
+            }
+            var toId = elemObj.to
+            var toClass = elemObj.toClass
+            if (sGraph.graph.nodes(toId) == null) {
+              sGraph.graph.addNode({
+                id: toId,
+                label: toClass,
+                x: Math.random(),
+                y: Math.random(),
+                level: 3,
+                size: getNodeSize(toClass), //Math.random(),
+                color: getColor(toClass), //'#666',
+                image: {
+                    url: getUrl(toClass),
+                    // scale/clip are ratio values applied on top of 'size'
+                    scale: 1.2,
+                    clip: 1.0,
+                },
+                data: null              
+              })
+            }
+            var edgeAttribute = elemObj.attribute
+            var edgeId = fromId + ":" + toId
+            if (sGraph.graph.edges(edgeId) == null) {
+              sGraph.graph.addEdge({
+                  id: edgeId,
+                  source: fromId,
+                  target: toId,
+                  size: 0.4,
+                  //level: 2,
+                  type: 'curve',
+                  // color: getEdgeColor(sGraph.graph, qResult.edge.source),
+                  hover_color: '#000'
+              })
+            }
+          }
         }
-
-        if ((qResult.edge != null) &&
-                (sGraph.graph.edges(qResult.edge.id) == null))
-            sGraph.graph.addEdge({
-                id: qResult.edge.id,
-                source: qResult.edge.source,
-                target: qResult.edge.target,
-                size: 0.4,
-                //level: 2,
-                type: 'curve',
-                // color: getEdgeColor(sGraph.graph, qResult.edge.source),
-                hover_color: '#000'
-            });
-
         if (qResult.nodes != null) // multiple nodes.
         {
             for (i = 0; i < qResult.nodes.length; i++) {

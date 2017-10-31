@@ -58,12 +58,12 @@ var DoSearch = {
      *
      * @param qResult
      */
-    processResult: function (qResult)
+    processResult: function (context, qResult)
     {
         //console.log(".... I'll handle your data:", qResult);
-        //console.log(".... processsing for context:", qResult.context);
-        if (qResult.context === 'person-datalist') {
-            var dataList = document.getElementById(qResult.context);
+        //console.log(".... processsing for context:", context);
+        if (context === 'person-datalist') {
+            var dataList = document.getElementById(context);
             if (qResult.node != null) {
                 var foundItem = false;
                 var node = qResult.node;
@@ -81,8 +81,8 @@ var DoSearch = {
                 }
             }
         }
-        else if (qResult.context === 'domain-datalist') {
-            var dataList = document.getElementById(qResult.context);
+        else if (context === 'domain-datalist') {
+            var dataList = document.getElementById(context);
             if (qResult.node != null) {
                 var foundItem = false;
                 var node = qResult.node;
