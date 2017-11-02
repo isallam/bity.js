@@ -68,3 +68,73 @@ console.log('Welcome to the Objectivity/Bitcoin query server.');
 server.listen(8080, function () {
   console.log('Listening on http://localhost:8080');
 });
+
+//---------------
+// REST stuff
+//---------------
+
+// Create the express router object for object details
+var objyRouter = express.Router();
+
+objyRouter.get('/', function(req, res) {
+  console.log('get a REST call: ', req.params)
+})
+
+//GET /objyget/do:oid — Retrieve an object using OID
+objyRouter.get('/oid/:oid', function(req, res) { 
+  // get the OID param from the request object
+  var oid = req.params.oid;
+  console.log('req.params: ', req.params)
+  
+  if (oid != null) {
+    doAccess.getObject(oid, function(qRes) {
+      var objectAsJson = JSON.parse(qRes)
+//      console.log('result: ', objectAsJson)
+      for (var attr in objectAsJson)
+      {
+//        console.log('prop: ', attr)
+        if (objectAsJson[attr] instanceof Array) {
+          objectAsJson[attr] = objectAsJson[attr].length
+        }
+      }
+//      console.log('processed res: ', objectAsJson)
+      res.json(objectAsJson)
+    })
+  }
+  else {
+    console.error(err);
+    res.statusCode = 500;
+    return res.json({ errors: ['Could not find object with OID: ' + oid] });
+  }
+    
+  // send results
+  res.end();
+});
+
+//GET /objyget/do:oid — Retrieve an object data using DO
+//objyRouter.get('/do/:qString', function(req, res) { 
+//  // get the OID param from the request object
+//  var qString = req.params.qString;
+//  console.log('req.params: ', req.params)
+//  
+//  if (qString != null) {
+//    doAccess.query(qString, function(qRes) {
+//      console.log('result: ', qRes)
+//      var objectAsJson = JSON.parse(qRes)
+//      res.json(objectAsJson)
+//      count++;
+//    })
+//  }
+//  else {
+//    console.error(err);
+//    res.statusCode = 500;
+//    return res.json({ errors: ['Could not execute: ' + qString] });
+//  }
+//    
+//  // send results
+//  res.end();
+//});
+
+// Attach the routers for their respective paths
+app.use('/objyget', objyRouter);
+

@@ -187,9 +187,26 @@ function getUrl (type) {
   return retVal
 };
 
-function getTrxType(node) {
-	var trxType = "";
-	return trxType;
+function getNodeData(node) {
+  if (node.data == null)
+  {
+    // request data from the server
+    //var qString = 'from ' + node.label + ' where $$ID==' + node.id + ' return *;'
+    var urlstring = location.origin+'/objyget/oid/' + node.id + '?';  //Your URL
+    console.log('Sending request: ', urlstring)
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", urlstring, false); // not async call
+    xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.send();
+    var response = JSON.parse(xhttp.responseText);
+    console.log('Got response: ', response)
+    // update the original node info as well.
+    var graphNode = this.sigmaGraph.graph.nodes(node.id)
+    if (graphNode != null)
+      graphNode.data = response
+    node.data = response
+  }
+  return node.data
 }
 
 function isString (obj) {

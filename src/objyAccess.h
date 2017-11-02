@@ -25,6 +25,7 @@ class ObjyAccess : public Nan::ObjectWrap {
   static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetConnection(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void Query(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static Nan::Persistent<v8::Function> constructor;
   
   string _connectionString;

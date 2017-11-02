@@ -62,7 +62,7 @@ var WebSocketHandler = {
         try {
           var json = JSON.parse(received_msg);
           console.log("GOT: ", json);
-          console.log("GotData: ", json.data);
+          //console.log("GotData: ", json.data);
           if (json.moreResults) {
             if (this.resultHandler !== null)
                 this.resultHandler.processResult(json.context, json.data);

@@ -33,7 +33,7 @@ function configureTooltip(sigmaGraph) {
         renderer: function (node, template) {
           // The function context is s.graph
           node.degree = this.degree(node.id);
-          node.trxType = getTrxType(node)
+          node.data = getNodeData(node)
           template = getTemplate(node.label);
 
           // Returns an HTML string:

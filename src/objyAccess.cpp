@@ -3,6 +3,21 @@
 
 Nan::Persistent<v8::Function> ObjyAccess::constructor;
 
+void string_to_oid(const char* str, /* out: */ ooId& oid) {
+  int db, oc, page, slot;
+  db = -1;
+  slot = -1;
+  if (str[0] == '#')
+    str++;
+  sscanf(str, "%d-%d-%d-%d", &db, &oc, &page, &slot);
+  if (db <= 0 || db > 0xFFFF || slot < 0 || slot > 0xFFFF)
+    throw ooFormattedException("Invalid OID string: \"%s\"", str);
+  oid._DB = db;
+  oid._OC = oc;
+  oid._page = page;
+  oid._slot = slot;
+}
+
 ObjyAccess::ObjyAccess(string connectionString) : 
     _connectionString(connectionString) {
   _connection = objy::db::Connection::connect(connectionString.c_str());
@@ -22,6 +37,7 @@ void ObjyAccess::Init(v8::Local<v8::Object> exports) {
   // Prototype
   Nan::SetPrototypeMethod(tpl, "connection", GetConnection);
   Nan::SetPrototypeMethod(tpl, "query", Query);
+  Nan::SetPrototypeMethod(tpl, "getObject", GetObject);
 
   constructor.Reset(tpl->GetFunction());
   exports->Set(Nan::New("ObjyAccess").ToLocalChecked(), tpl->GetFunction());
@@ -125,6 +141,12 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
           if (maxResults != -1 && count >= maxResults)
             break;
         }
+        if (count == 0) // nothing available, we'll return an empty JSON
+        {
+          printf("results: %d\n", count);
+          v8::Local<v8::Value> argv[argc] = { Nan::New("{}").ToLocalChecked() };
+          Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+        }
       } 
       else {
         stringstream os;
@@ -133,6 +155,52 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         v8::Local<v8::Value> argv[argc] = { Nan::New(queryResults.c_str()).ToLocalChecked() };
         Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
       }
+
+      tx->commit();
+      tx->release();    
+  } catch (ooKernelException& e) {
+    printf("error: %s\n", e.what());
+    return;
+  } catch (ooBaseException& e) {
+    printf("error: %s\n", e.what());
+    return;
+  }
+
+}
+
+void ObjyAccess::GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+  v8::Isolate* isolate = info.GetIsolate();
+  ObjyAccess* obj = ObjectWrap::Unwrap<ObjyAccess>(info.Holder());
+  ooId oid;
+  v8::Local<v8::Function> cb;
+  
+  if (info[0]->IsString())
+  {
+    v8::String::Utf8Value oidString(info[0]->ToString());
+    printf("Got OID: %s\n", (const char*)(*oidString));
+    string_to_oid((const char*)(*oidString), oid);
+  }
+  else {
+    isolate->ThrowException(v8::Exception::TypeError(
+      v8::String::NewFromUtf8(isolate, "Missing valid OID string.")));
+    return;
+  }
+
+  cb = info[1].As<v8::Function>();
+
+  const int argc = 1;
+  
+  try {
+      //printf("Executing Query: '%s'\n", qString);
+      objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::ReadOnly, "read");
+      //objy::data::Reference objRef = objy::data::referenceFor(oid);
+      objy::data::Object obj = objy::data::objectFor(oid);
+      objy::data::Variable var(obj);
+      stringstream os;
+      var.toJSON(os);
+      v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
+      Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
 
       tx->commit();
       tx->release();    
