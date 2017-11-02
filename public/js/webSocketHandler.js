@@ -45,7 +45,6 @@ var WebSocketHandler = {
         };
         webSocket.onclose = function () {
             // websocket is closed.
-            //content.html($('<p>', { text: 'Connection closed by the server...' } ));
             //console.log("Connection is closed...");
             writeToStatus("Connection is closed...");
             window.ws = null;
@@ -61,11 +60,10 @@ var WebSocketHandler = {
         var received_msg = message.data;
         try {
           var json = JSON.parse(received_msg);
-          console.log("GOT: ", json);
-          //console.log("GotData: ", json.data);
+          //console.log("GOT: ", json);
           if (json.moreResults) {
             if (this.resultHandler !== null)
-                this.resultHandler.processResult(json.context, json.data);
+                this.resultHandler.processResult(json.qType, json.context, json.data);
           } else {
             writeToStatus('Query Completed... ');
             if (this.resultHandler !== null)
@@ -73,10 +71,10 @@ var WebSocketHandler = {
           }
         } catch (e) {
             //console.log('This doesn\'t look like a valid JSON: ', received_msg);
-            writeToStatus('Error in received JSON (invalid): ' + received_msg);
+            writeToStatus('Error when processing received JSON: ' + e.message);
+            writeToStatus('Recieved JSON: ', JSON.parse(received_msg));
             return;
         }
-        //msg_section.append($('<li>').text(received_msg));
     },
     ensureSocketOpen: function () {
         if (window.ws == null ||

@@ -343,7 +343,7 @@ var DoQuery = {
         writeToStatus("Expanding node: " + nodeId);
         var maxResults = getMaxResults();
         var msg = {"qContext": this.graphContainerName,
-            "qType": "getEdges", "objRef": nodeId,
+            "qType": "GetEdges", "objRef": nodeId,
             "maxResult": Number(maxResults),
             "verbose": 2};
         WebSocketHandler.sendMessage(msg, handler);
@@ -362,14 +362,6 @@ var DoQuery = {
 
         var sGraph = this.contextList[context];
 
-        // Start the Fruchterman-Reingold algorithm:
-        //sigma.layouts.fruchtermanReingold.start(sGraph);
-        // 
-  //        sGraph.startForceAtlas2({worker:true})
-  //        setTimeout(function() {
-  //            sGraph.stopForceAtlas2();
-  //            console.log("ForceAtlas2 stopped")
-  //        }, 2000);
         this.currentLayout();
           
         this.clearLocateLists();
@@ -489,118 +481,53 @@ var DoQuery = {
      *
      * @param qResult
      */
-    processResult: function (context, qResult)
+    processResult : function(qType, context, qResult) {
+      if (qType === 'DOQuery')
+        this.processResultForDO(context, qResult);
+      else if (qType === 'GetEdges')
+        this.processResultForGetEdges(context, qResult);
+    },
+    
+    processResultForDO: function (context, qResult)
     {
         //console.log(".... I'll handle your data:", qResult);
         //console.log(".... processsing for context:", context);
 
         var sGraph = this.contextList[context]
 
-        if (qResult.__class__ == '_Projection')
+        // This processes both DOQuery and GetEdges reguests.
+        // the DOQuery results will contain '__class__' element but the GetEdges
+        // doesn't
+        if (qResult.__class__ === '_Projection')
         {
           var elemArray = qResult.p
           for (var i = 0; i < elemArray.length; i++ ) {
             var elemObj = elemArray[i]
             var fromId = elemObj.from
             var fromClass = elemObj.fromClass
-            if (sGraph.graph.nodes(fromId) == null) {
-              sGraph.graph.addNode( {
-                id: fromId,
-                label: fromClass,
-                x: Math.random(),
-                y: Math.random(),
-                level: 3,
-                size: getNodeSize(fromClass), //Math.random(),
-                color: getColor(fromClass), //'#666',
-                image: {
-                    url: getUrl(fromClass),
-                    // scale/clip are ratio values applied on top of 'size'
-                    scale: 1.2,
-                    clip: 1.0,
-                },
-                data: null
-              })
-            }
+            Utils.addNodeToGraph(sGraph.graph, fromId, fromClass)
             var toId = elemObj.to
             var toClass = elemObj.toClass
-            if (sGraph.graph.nodes(toId) == null) {
-              sGraph.graph.addNode({
-                id: toId,
-                label: toClass,
-                x: Math.random(),
-                y: Math.random(),
-                level: 3,
-                size: getNodeSize(toClass), //Math.random(),
-                color: getColor(toClass), //'#666',
-                image: {
-                    url: getUrl(toClass),
-                    // scale/clip are ratio values applied on top of 'size'
-                    scale: 1.2,
-                    clip: 1.0,
-                },
-                data: null              
-              })
-            }
+            Utils.addNodeToGraph(sGraph.graph, toId, toClass)
             var edgeAttribute = elemObj.attribute
-            var edgeId = fromId + ":" + toId
-            if (sGraph.graph.edges(edgeId) == null) {
-              sGraph.graph.addEdge({
-                  id: edgeId,
-                  source: fromId,
-                  target: toId,
-                  size: 0.4,
-                  //level: 2,
-                  type: 'curve',
-                  // color: getEdgeColor(sGraph.graph, qResult.edge.source),
-                  hover_color: '#000'
-              })
-            }
+            Utils.addEdgeToGraph(sGraph.graph, fromId, toId, edgeAttribute)
           }
+        }
+        else // regular class results or class projection
+        {
+          Utils.addNodeToGraph(sGraph.graph, qResult.__identifier__, 
+                  qResult.__class__, qResult /*node.data*/)
         }
         if (qResult.nodes != null) // multiple nodes.
         {
-            for (i = 0; i < qResult.nodes.length; i++) {
-                var node = qResult.nodes[i];
-                if (sGraph.graph.nodes(node.id) == null) {
-                    sGraph.graph.addNode({
-                        id: node.id,
-                        label: node.label,
-                        x: Math.random(),
-                        y: Math.random(),
-                        level: 3,
-                        size: getNodeSize(node), //Math.random(),
-                        color: getColor(node), //'#666',
-                        image: {
-                            url: getUrl(node.label),
-                            // scale/clip are ratio values applied on top of 'size'
-                            scale: 1.2,
-                            clip: 1.0,
-                        },
-                        data: node.data
-                    })
-                }
-            }
+          // TBD...
         }
 
         if (qResult.edges != null) // multiple edges.
         {
-            for (i = 0; i < qResult.edges.length; i++) {
-                var edge = qResult.edges[i];
-                if (sGraph.graph.edges(edge.id) == null) {
-                    sGraph.graph.addEdge({
-                        id: edge.id,
-                        source: edge.source,
-                        target: edge.target,
-                        label: edge.label,
-                        size: 1,
-                        level: 2,
-                        type: 'curvedArrow',
-                        // color: getEdgeColor(sGraph.graph, qResult.edge.source),
-                        hover_color: '#000'
-                    });
-                }
-            }
+          // TBD...
         }
+
         if (qResult.status != null) // display status in the status window
         {
             // this is a hack to allow for similarity results to show on the windows.
@@ -619,6 +546,43 @@ var DoQuery = {
         sGraph.refresh()
 
     },
+
+    processResultForGetEdges: function (context, qResult)
+    {
+        //console.log(".... I'll handle your data:", qResult);
+        //console.log(".... processsing for context:", context);
+
+        var sGraph = this.contextList[context]
+
+        // This processes GetEdges reguests.
+        // Results are simple JSON objects
+        var fromId = qResult.from
+        var fromClass = qResult.fromClass
+        Utils.addNodeToGraph(sGraph.graph, fromId, fromClass)
+        var toId = qResult.to
+        var toClass = qResult.toClass
+        Utils.addNodeToGraph(sGraph.graph, toId, toClass)
+        var edgeAttribute = qResult.attribute
+        Utils.addEdgeToGraph(sGraph.graph, fromId, toId, edgeAttribute)
+          
+
+        if (qResult.nodes != null) // multiple nodes.
+        {
+          // TBD...
+        }
+
+        if (qResult.edges != null) // multiple edges.
+        {
+          // TBD...
+        }
+        if (qResult.status != null) // display status in the status window
+        {
+            writeToStatus(qResult.status);
+        }
+        sGraph.refresh()
+
+    },
+
     /****
      *
      * @param controller

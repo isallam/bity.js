@@ -19,29 +19,19 @@ function configureTooltip(sigmaGraph) {
         cssClass: 'sigma-tooltip',
         position: 'top',
         //autoadjust: true,
-        //template: this.nodeTemplate,
-        // '<div class="arrow"></div>' +
-        // ' <div class="sigma-tooltip-header">{{label}}</div>' +
-        // '  <div class="sigma-tooltip-body">' +
-        // '    <table>' +
-        // '      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
-        // '      <tr><th>OID</th> <td>{{data.oid}}</td></tr>' +
-        // '      <tr><th>Edges</th> <td>{{data.edges}}</td></tr>' +
-        // '    </table>' +
-        // '  </div>' +
-        // '  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>',
         renderer: function (node, template) {
           // The function context is s.graph
-          node.degree = this.degree(node.id);
-          node.data = getNodeData(node)
+          var tip = {
+            label: node.label,
+            degree: this.degree(node.id),
+            id: node.id
+          };
           template = getTemplate(node.label);
+          var partials = {table_elements: getElements(node)};
 
           // Returns an HTML string:
-          return Mustache.render(template, node);
+          return Mustache.render(template, tip, partials);
 
-          // Returns a DOM Element:
-          //var el = document.createElement('div');
-          //return el.innerHTML = Mustache.render(template, node);
         }
       }, {
         show: 'rightClickNode',
@@ -52,8 +42,10 @@ function configureTooltip(sigmaGraph) {
                 ' <div class="sigma-tooltip-header">{{label}}</div>' +
                 '  <div class="sigma-tooltip-body">' +
                 '   <p> Tagging for OID: {{id}} </p>' +
-                '   <input type="text" oid={{id}} id="tag-text" />' +
-                '   <input type="button" class="app-btn" value="Tag" onclick="doTag()"/>' +
+                '   <div>' +
+                '     <input type="text" oid={{id}} id="tag-text" />' +
+                '     <input type="button" class="app-btn-small" value="Tag" onclick="doTag()"/>' +
+                '   </div>' +
                 '  </div>', 
                 //' <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>',
         renderer: function (node, template) {

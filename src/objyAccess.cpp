@@ -37,7 +37,9 @@ void ObjyAccess::Init(v8::Local<v8::Object> exports) {
   // Prototype
   Nan::SetPrototypeMethod(tpl, "connection", GetConnection);
   Nan::SetPrototypeMethod(tpl, "query", Query);
+  Nan::SetPrototypeMethod(tpl, "update", Update);
   Nan::SetPrototypeMethod(tpl, "getObject", GetObject);
+  Nan::SetPrototypeMethod(tpl, "getEdges", GetEdges);
 
   constructor.Reset(tpl->GetFunction());
   exports->Set(Nan::New("ObjyAccess").ToLocalChecked(), tpl->GetFunction());
@@ -90,7 +92,7 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if (info[0]->IsString())
   {
     v8::String::Utf8Value queryString(info[0]->ToString());
-    printf("Got query string: %s\n", (const char*)(*queryString));
+    //printf("Got query string: %s\n", (const char*)(*queryString));
     qString = (const char*)(*queryString);
     //obj->doQuery((const char*)(*queryString));
   }
@@ -123,7 +125,7 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       objy::data::Variable results = doStatement.execute(policies);
 
       objy::data::LogicalType::type logicalType = results.specification()->logicalType();
-      printf("results spec: %s\n", objy::data::LogicalType::toString(logicalType));
+      //printf("results spec: %s\n", objy::data::LogicalType::toString(logicalType));
 
       if (logicalType == objy::data::LogicalType::Sequence) {
         objy::data::Sequence sequence = results.get<objy::data::Sequence>();
@@ -143,7 +145,7 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         }
         if (count == 0) // nothing available, we'll return an empty JSON
         {
-          printf("results: %d\n", count);
+          //printf("results: %d\n", count);
           v8::Local<v8::Value> argv[argc] = { Nan::New("{}").ToLocalChecked() };
           Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
         }
@@ -151,18 +153,69 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       else {
         stringstream os;
         results.toJSON(os);
-        string queryResults = "Query results: " + os.str();
-        v8::Local<v8::Value> argv[argc] = { Nan::New(queryResults.c_str()).ToLocalChecked() };
+        //string queryResults = "Query results: " + os.str();
+        v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
         Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
       }
 
       tx->commit();
       tx->release();    
   } catch (ooKernelException& e) {
-    printf("error: %s\n", e.what());
+    ObjyAccess::reportError(cb, e.what());
+    printf("error1: %s\n", e.what());
     return;
   } catch (ooBaseException& e) {
-    printf("error: %s\n", e.what());
+    ObjyAccess::reportError(cb, e.what());
+    printf("error2: %s\n", e.what());
+    return;
+  }
+
+}
+
+void ObjyAccess::Update(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+  v8::Isolate* isolate = info.GetIsolate();
+  ObjyAccess* obj = ObjectWrap::Unwrap<ObjyAccess>(info.Holder());
+  string doString;
+  v8::Local<v8::Function> cb;
+  
+  if (info[0]->IsString())
+  {
+    v8::String::Utf8Value queryString(info[0]->ToString());
+    //printf("Got query string: %s\n", (const char*)(*queryString));
+    doString = (const char*)(*queryString);
+    //obj->doQuery((const char*)(*queryString));
+  }
+  else {
+    isolate->ThrowException(v8::Exception::TypeError(
+      v8::String::NewFromUtf8(isolate, "Missing valid query string.")));
+    return;
+  }
+  cb = info[1].As<v8::Function>();
+  const int argc = 1;
+  
+  try {
+      //printf("Executing Query: '%s'\n", qString);
+      objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::Update, "write");
+      objy::statement::Statement doStatement(doString.c_str());
+
+      objy::data::Variable results = doStatement.execute();
+
+      stringstream os;
+      results.toJSON(os);
+      //string queryResults = "Query results: " + os.str();
+      v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
+      Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+
+      tx->commit();
+      tx->release();    
+  } catch (ooKernelException& e) {
+    ObjyAccess::reportError(cb, e.what());
+    printf("error1: %s\n", e.what());
+    return;
+  } catch (ooBaseException& e) {
+    ObjyAccess::reportError(cb, e.what());
+    printf("error2: %s\n", e.what());
     return;
   }
 
@@ -178,7 +231,7 @@ void ObjyAccess::GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if (info[0]->IsString())
   {
     v8::String::Utf8Value oidString(info[0]->ToString());
-    printf("Got OID: %s\n", (const char*)(*oidString));
+    //printf("Got OID: %s\n", (const char*)(*oidString));
     string_to_oid((const char*)(*oidString), oid);
   }
   else {
@@ -205,15 +258,95 @@ void ObjyAccess::GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       tx->commit();
       tx->release();    
   } catch (ooKernelException& e) {
-    printf("error: %s\n", e.what());
+    ObjyAccess::reportError(cb, e.what());
+    printf("error1: %s\n", e.what());
     return;
   } catch (ooBaseException& e) {
-    printf("error: %s\n", e.what());
+    ObjyAccess::reportError(cb, e.what());
+    printf("error2: %s\n", e.what());
     return;
   }
 
 }
 
+void ObjyAccess::GetEdges(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+  v8::Isolate* isolate = info.GetIsolate();
+  ObjyAccess* obj = ObjectWrap::Unwrap<ObjyAccess>(info.Holder());
+  ooId oid;
+  int maxResults = -1;
+  v8::Local<v8::Function> cb;
+  
+  if (info[0]->IsString())
+  {
+    v8::String::Utf8Value oidString(info[0]->ToString());
+    //printf("Got OID: %s\n", (const char*)(*oidString));
+    string_to_oid((const char*)(*oidString), oid);
+  }
+  else {
+    isolate->ThrowException(v8::Exception::TypeError(
+      v8::String::NewFromUtf8(isolate, "Missing valid OID string.")));
+    return;
+  }
+
+  if (info.Length() > 2) {
+    maxResults = info[1]->NumberValue();
+    cb = info[2].As<v8::Function>();
+  }
+  else {
+    cb = info[1].As<v8::Function>();
+  }
+  
+  const int argc = 1;
+  
+  try {
+      //printf("Executing Query: '%s'\n", qString);
+      objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::ReadOnly, "read");
+      //objy::data::Reference objRef = objy::data::referenceFor(oid);
+      objy::data::Object obj = objy::data::objectFor(oid);
+      objy::data::Class targetClass = objy::data::lookupClass("ooObj");
+      objy::data::Sequence sequence = obj.edges(NULL, NULL, targetClass, false);
+        objy::data::Variable sequenceItem;
+        int count = 0;
+        while (sequence.next()) {
+          sequence.current(sequenceItem);
+          stringstream os;
+          sequenceItem.toJSON(os);
+          v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
+          Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+          count++;
+          if (maxResults != -1 && count >= maxResults)
+            break;
+        }
+        if (count == 0) // nothing available, we'll return an empty JSON
+        {
+          //printf("results: %d\n", count);
+          v8::Local<v8::Value> argv[argc] = { Nan::New("{}").ToLocalChecked() };
+          Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+        }
+
+      tx->commit();
+      tx->release();    
+  } catch (ooKernelException& e) {
+    ObjyAccess::reportError(cb, e.what());
+    printf("error1: %s\n", e.what());
+    return;
+  } catch (ooBaseException& e) {
+    ObjyAccess::reportError(cb, e.what());
+    printf("error2: %s\n", e.what());
+    return;
+  }
+
+}
+
+void ObjyAccess::reportError(v8::Local<v8::Function> cb, const char* errorMessage) 
+{
+  const int argc = 1;
+  char buffer[1024];
+  sprintf(buffer, "{\"status\":\"ERROR: %s\"}", errorMessage);
+  v8::Local<v8::Value> argv[argc] = { Nan::New(buffer).ToLocalChecked() };
+  Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+}
 //void ObjyAccess::Query2(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 //  v8::Local<v8::Function> cb = info[0].As<v8::Function>();
 //  const unsigned argc = 1;

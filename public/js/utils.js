@@ -29,6 +29,43 @@ var Utils = {
 
     ratifyElem : function (elemId) {
 	document.getElementById(elemId).style.display = 'block';
+    },
+    
+    addNodeToGraph : function(graph, nodeId, nodeClass, nodeData = null) {
+        if (graph.nodes(nodeId) == null) {
+          graph.addNode( {
+            id: nodeId,
+            label: nodeClass,
+            x: Math.random(),
+            y: Math.random(),
+            level: 3,
+            size: getNodeSize(nodeClass), //Math.random(),
+            color: getColor(nodeClass), //'#666',
+            image: {
+                url: getUrl(nodeClass),
+                // scale/clip are ratio values applied on top of 'size'
+                scale: 1.2,
+                clip: 1.0,
+            },
+            data: nodeData
+          })
+        }
+    },
+    
+    addEdgeToGraph : function(graph, fromId, toId, edgeAttribute) {
+      var edgeId = fromId + ":" + toId
+      if (graph.edges(edgeId) == null) {
+        graph.addEdge({
+            id: edgeId,
+            source: fromId,
+            target: toId,
+            size: 0.4,
+            //level: 2,
+            type: 'curve',
+            // color: getEdgeColor(sGraph.graph, qResult.edge.source),
+            hover_color: '#000'
+        })
+      }
     }
 };
 
@@ -42,109 +79,26 @@ var simpleTemplate = '<div class="arrow"></div>' +
 	'  </div>' +
 	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
 
-var blockTemplate = '<div class="arrow"></div>' +
-	' <div class="sigma-tooltip-header">{{label}}</div>' +
-	'  <div class="sigma-tooltip-body">' +
-	'    <table>' +
-	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
-	'      <tr><th>Version</th> <td>{{data.m_Version}}</td></tr>' +
-	'      <tr><th>Time</th> <td>{{data.m_Time}}</td></tr>' +
-	'      <tr><th>Hash</th> <td>{{data.m_Hash}}</td></tr>' +
-	'      <tr><th># Transactions</th> <td>{{data.m_Transactions}}</td></tr>' +
-	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
-	'    </table>' +
-	'  </div>' +
-	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
+var ToolTipSelectiveAttributes = {
+  'Block' : ["m_Id", "m_Version", "m_Time", "m_Hash", "m_Transactions"],
+  'Transaction' : ["m_Id", "m_Hash", "m_Inputs", "m_Outputs"],
+  'Input' : ["m_IsCoinBase"],
+  'Output' : ["m_Value"],
+  'Address' : ["m_Hash", "m_Outputs"],
+  'Tag' : ['m_Label', 'm_Ref']
+};
 
-var transactionTemplate = '<div class="arrow"></div>' +
+var simpleTemplate2 = '<div class="arrow"></div>' +
 	' <div class="sigma-tooltip-header">{{label}}</div>' +
 	'  <div class="sigma-tooltip-body">' +
-	'    <table>' +
-//	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
-	'      <tr><th>Hash</th> <td>{{data.m_Hash}}</td></tr>' +
-	'      <tr><th># Inputs</th> <td>{{data.m_Inputs}}</td></tr>' +
-	'      <tr><th># Outputs</th> <td>{{data.m_Outputs}}</td></tr>' +
-	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
-	'    </table>' +
-	'  </div>' +
-	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
-
-var inputTemplate = '<div class="arrow"></div>' +
-	' <div class="sigma-tooltip-header">{{label}}</div>' +
-	'  <div class="sigma-tooltip-body">' +
-	'    <table>' +
-//	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
-	'      <tr><th>isCoinBase</th> <td>{{data.m_IsCoinBase}}</td></tr>' +
-	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
-	'    </table>' +
-	'  </div>' +
-	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
-
-var outputTemplate = '<div class="arrow"></div>' +
-	' <div class="sigma-tooltip-header">{{label}}</div>' +
-	'  <div class="sigma-tooltip-body">' +
-	'    <table>' +
-//	'      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
-	'      <tr><th>Value</th> <td>{{data.m_Value}}</td></tr>' +
-	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
-	'    </table>' +
-	'  </div>' +
-	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
-    
-var addressTemplate = '<div class="arrow"></div>' +
-	' <div class="sigma-tooltip-header">{{label}}</div>' +
-	'  <div class="sigma-tooltip-body">' +
-	'    <table>' +
-	'      <tr><th>Hash</th> <td>{{data.m_Hash}}</td></tr>' +
-	'      <tr><th># Outputs</th> <td>{{data.m_Outputs}}</td></tr>' +
-	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
-	'    </table>' +
-	'  </div>' +
-	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
-
-var tagTemplate = '<div class="arrow"></div>' +
-	' <div class="sigma-tooltip-header">{{label}}</div>' +
-	'  <div class="sigma-tooltip-body">' +
-	'    <table>' +
-	'      <tr><th>Label</th> <td>{{data.m_Label}}</td></tr>' +
-	'      <tr><th>Ref  </th> <td>{{data.m_Ref}}</td></tr>' +
-	'      <tr><th>OID</th> <td>{{id}}</td></tr>' +
+	'    <table> {{>table_elements}} </table>' + 
 	'    </table>' +
 	'  </div>' +
 	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
 
 
 function getTemplate(nodeLabel) {
-	console.log("Getting template for: ", nodeLabel);
-
-	if (nodeLabel === 'Block')
-		return blockTemplate;
-	else if (nodeLabel === 'Transaction')
-		return transactionTemplate;
-	else if (nodeLabel === 'Input')
-			return inputTemplate;
-	else if (nodeLabel === 'Output')
-			return outputTemplate;
-    else if (nodeLabel === 'Address')
-            return addressTemplate;
-    else if (nodeLabel === 'Tag')
-            return tagTemplate;
-	else
-		return simpleTemplate;
-
-	// var nodeTemplate = 		    '<div class="arrow"></div>' +
-	// ' <div class="sigma-tooltip-header">{{label}}</div>' +
-	// '  <div class="sigma-tooltip-body">' +
-	// '    <table>' +
-	// '      <tr><th>ID</th> <td>{{data.m_Id}}</td></tr>' +
-	// '      <tr><th>OID</th> <td>{{data.oid}}</td></tr>' +
-	// '      <tr><th>Edges</th> <td>{{data.edges}}</td></tr>' +
-	// '    </table>' +
-	// '  </div>' +
-	// '  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
-
-	// return nodeTemplate;
-
+    return simpleTemplate2;
 }
 
 function getNodeSize (label) {
@@ -166,7 +120,7 @@ function getColor (label) {
 	var retVal = '#556677'
 
 	if (!iconUrls[label]) {
-		console.error("Unknown URL for node: " + node);
+		console.error("Unknown URL for node with label: " + label);
 	}
 	else {
 		retVal = iconUrls[label][1]
@@ -179,7 +133,7 @@ function getColor (label) {
 function getUrl (type) {
   retVal = 'icons/blue.png'
   if (!iconUrls[type]) {
-    console.error("Unknown URL for node: " + node);
+    console.error("Unknown URL for node with type: " + type);
   }
   else {
     retVal = iconUrls[type][0]
@@ -207,6 +161,19 @@ function getNodeData(node) {
     node.data = response
   }
   return node.data
+}
+
+function getElements(node) {
+  var attributes = ToolTipSelectiveAttributes[node.label];
+  var data = getNodeData(node);
+  var html_string = '';
+  for (var prop in data) {
+    //console.log("prop; ", prop, " - value: ", data[prop]);
+    if (attributes == null || (attributes != null && attributes.includes(prop)))
+      html_string += '<tr><th>' + prop + '</th><td>' + data[prop] + '</td></tr>';
+  }
+  
+  return html_string
 }
 
 function isString (obj) {

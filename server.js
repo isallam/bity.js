@@ -35,19 +35,47 @@ wss.on('connection', function (ws) {
     if (typeof data === 'string') {
       messageData = JSON.parse(data);
       console.log("message: ", messageData);
-      qType       = messageData['qType'];
-      qContext    = messageData['qContext'];
-      doStatement = messageData['doStatement']
-      maxResult   = messageData['maxResult']
+      var qType       = messageData['qType'];
+      var qContext    = messageData['qContext'];
+      var maxResult   = messageData['maxResult']
+      var count = 0;
       if (qType == 'DOQuery') {
-        count = 0;
+        var doStatement = messageData['doStatement']
         doAccess.query(doStatement, Number(maxResult), function(res) {
-          console.log('result: ', res)
-          ws.send(JSON.stringify({context: qContext, data: JSON.parse(res), moreResults: true}));
+          var objectAsJson = JSON.parse(res)
+          console.log('result: ', objectAsJson)
+          if (objectAsJson.__class__ !== '_Projection')
+          { // normal class data so we need to collapsed the arrays to just a number
+            for (var attr in objectAsJson)
+            {
+      //        console.log('prop: ', attr)
+              if (objectAsJson[attr] instanceof Array) {
+                objectAsJson[attr] = objectAsJson[attr].length
+              }
+            }
+          }
+          ws.send(JSON.stringify({qType: qType, context: qContext, 
+            data: objectAsJson, moreResults: true}));
           count++;
         })
-        ws.send(JSON.stringify({context: qContext, data: null, moreResults: false}));
+      } else if (qType == 'GetEdges') {
+        var objRef = messageData['objRef']
+        doAccess.getEdges(objRef, Number(maxResult), function(res) {
+          console.log('result: ', res)
+          ws.send(JSON.stringify({qType: qType, context: qContext, 
+            data: JSON.parse(res), moreResults: true}))
+          count++
+        })
+      } else if (qType == 'DOUpdate') {
+        var doStatement = messageData['doStatement']
+        doAccess.update(doStatement, function(res) {
+          console.log('result: ', res)
+          ws.send(JSON.stringify({qType: qType, context: qContext, 
+            data: JSON.parse(res), moreResults: true}));
+          count++;
+        })
       }
+      ws.send(JSON.stringify({qType: qType, context: qContext, data: null, moreResults: false}));
     } else {
       console.log("message ignored: ", data);
     }
@@ -89,7 +117,7 @@ objyRouter.get('/oid/:oid', function(req, res) {
   if (oid != null) {
     doAccess.getObject(oid, function(qRes) {
       var objectAsJson = JSON.parse(qRes)
-//      console.log('result: ', objectAsJson)
+      console.log('result: ', objectAsJson)
       for (var attr in objectAsJson)
       {
 //        console.log('prop: ', attr)

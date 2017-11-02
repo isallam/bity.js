@@ -21,11 +21,14 @@ class ObjyAccess : public Nan::ObjectWrap {
   explicit ObjyAccess(string connectionString);
   ~ObjyAccess();
   void doQueryTest(const char* queryString);
+  static void reportError(v8::Local<v8::Function> cb, const char* errorMessage);
   
   static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetConnection(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void Query(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void Update(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void GetEdges(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static Nan::Persistent<v8::Function> constructor;
   
   string _connectionString;
