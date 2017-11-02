@@ -63,7 +63,8 @@ var Utils = {
             //level: 2,
             type: 'curve',
             // color: getEdgeColor(sGraph.graph, qResult.edge.source),
-            hover_color: '#000'
+            hover_color: '#000',
+            label: edgeAttribute
         })
       }
     }

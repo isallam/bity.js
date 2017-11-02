@@ -39,8 +39,11 @@ function doInit() {
     if (qbox)
         qbox.value = qboxDefaultText
 
-    // hide similarity buttton
-    //Utils.eraseElem('table-btn');
+    // hide labels off buttton
+    Utils.eraseElem('labels-off-btn');
+    window.showLabels = true;
+    Utils.eraseElem('edge-labels-off-btn');
+    window.showEdgeLabels = true;
 
 	// hide similarity buttton
 	Utils.eraseElem('similar-nodes-btn');
@@ -136,6 +139,52 @@ function toggleModelDisplay() {
 
 function doShowResultsTable() {
     // showing the results table.
+}
+
+function toggleShowLabels() {
+  if (window.showLabels == false)
+  {
+    // show the on and remove the off
+    Utils.eraseElem('labels-off-btn')
+    Utils.ratifyElem('labels-on-btn')
+    window.showLabels = true;
+  }
+  else
+  {
+    Utils.eraseElem('labels-on-btn')
+    Utils.ratifyElem('labels-off-btn')
+    window.showLabels = false;
+  }
+
+  if (window.sigmaGraph != null)
+  {
+    window.sigmaGraph.settings({drawLabels: window.showLabels});
+    // Refresh the graph to see the changes
+    window.sigmaGraph.refresh();
+  }
+}
+
+function toggleShowEdgeLabels() {
+  if (window.showEdgeLabels == false)
+  {
+    // show the on and remove the off
+    Utils.eraseElem('edge-labels-off-btn')
+    Utils.ratifyElem('edge-labels-on-btn')
+    window.showEdgeLabels = true;
+  }
+  else
+  {
+    Utils.eraseElem('edge-labels-on-btn')
+    Utils.ratifyElem('edge-labels-off-btn')
+    window.showEdgeLabels = false;
+  }
+
+  if (window.sigmaGraph != null)
+  {
+    window.sigmaGraph.settings({drawEdgeLabels: window.showEdgeLabels});
+    // Refresh the graph to see the changes
+    window.sigmaGraph.refresh();
+  }
 }
 
 function doSelectNodes() {
