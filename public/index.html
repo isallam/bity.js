@@ -188,52 +188,77 @@
                     </div>
                 </div>
                 <div style="cursor: pointer">
+                  <div class="tooltip">
                     <img src="icons/reset_button_blue.png" alt="ResetView" width='24'
                          id="reset-view-btn" onclick="doResetView()"/>
+                    <span class="tooltiptext">rest view</span>
+                  </div>
                 </div>
                 <div style="cursor: pointer">
+                  <div class="tooltip">
                     <img src="icons/layout1.png" alt="Layout1" width='24'
                          id="layout1-btn" onclick="doLayout1View()"/>
+                    <span class="tooltiptext">graph layout 1</span>
+                  </div>
                 </div>
                 <div style="cursor: pointer">
+                  <div class="tooltip">
                     <img src="icons/layout2.png" alt="Layout2" width='24'
                          id="layout2-btn" onclick="doLayout2View()"/>
+                    <span class="tooltiptext">graph layout 2</span>
+                  </div>
                 </div>
                 <div style="cursor: pointer">
+                  <div class="tooltip">
                     <img src="icons/layout3.png" alt="Layout3" width='24'
                          id="layout3-btn" onclick="doLayout3View()"/>
+                    <span class="tooltiptext">tree layout</span>
+                  </div>
                 </div>
                 <div>
+                  <div class="tooltip">
                     <img src="icons/toggle1_on.png" alt="ToggleLabelsOn" width='24'
                          id="labels-on-btn" onclick="toggleShowLabels()"/>
-                </div>
-                <div>
                     <img src="icons/toggle1_off.png" alt="ToggleLabelsOff" width='24'
                          id="labels-off-btn" onclick="toggleShowLabels()"/>
+                    <span class="tooltiptext">node text on/off</span>
+                  </div>
                 </div>
                 <div>
+                  <div class="tooltip">
                     <img src="icons/toggle1_on.png" alt="ToggleEdgeLabelsOn" width='24'
                          id="edge-labels-on-btn" onclick="toggleShowEdgeLabels()"/>
-                </div>
-                <div>
                     <img src="icons/toggle1_off.png" alt="ToggleEdgeLabelsOff" width='24'
                          id="edge-labels-off-btn" onclick="toggleShowEdgeLabels()"/>
+                    <span class="tooltiptext">edge text on/off</span>
+                  </div>
                 </div>
                 <div>
+                  <div class="tooltip">
                     <img src="icons/mouse_cursor_s.png" alt="SelectSimilar" width='24'
                          id="select-nodes-btn" onclick="doSelectNodes()"/>
+                    <span class="tooltiptext">select nodes (similarity)</span>
+                  </div>
                 </div>
                 <div>
+                  <div class="tooltip">
                     <img src="icons/similar_s.png" alt="Similar" width='24'
                          id="similar-nodes-btn" onclick="doNodeSimilarity()"/>
+                    <span class="tooltiptext">do similarity</span>
+                  </div>
                 </div>
                 <div>
+                  <div class="tooltip">
                     <img src="icons/mouse_cursor_p.png" alt="SelectPattern" width='24'
                          id="select-nodes-pattern-btn" onclick="doPatternSelect()"/>
+                    <span class="tooltiptext">select nodes (pattern)</span>
+                  </div>
                 </div>
                 <div>
+                  <div class="tooltip">
                     <img src="icons/similar_p.png" alt="Pattern" width='24'
                          id="similar-nodes-pattern-btn" onclick="doPatternSimilarity()"/>
+                    <span class="tooltiptext">do Pattern</span>
                     <!-- Modal configuration for selected pattern -->
                     <div id="pattern-config">
                       <!-- Modal content -->
@@ -245,6 +270,7 @@
                       </div>
 
                     </div>
+                  </div>
                 </div>
                 <!--
                 <div class="tableGroup">
@@ -267,10 +293,20 @@
                 -->
             </div>
             <div class="noselect">
-              <img src="icons/model.png" alt="Model" width='500' id="model-graph" style="visibility: hidden"/>
-              <img src="icons/documents1.png" alt="Documents" width='24' id="documents-btn" style="cursor:pointer"
-                   onclick="toggleModelDisplay()"/>
-              <img src="icons/fullScreen.png" alt="FullScreen" width='24' id="graph-btn" style="cursor:pointer"/>
+              <div>
+                <!--<div class="tooltip">-->
+                  <img src="icons/model.png" alt="Model" width='500' id="model-graph" style="visibility: hidden"/>
+                  <img src="icons/documents1.png" alt="Documents" width='24' id="documents-btn" style="cursor:pointer"
+                        onclick="toggleModelDisplay()"/>
+                  <span class="tooltiptext">model</span>
+                <!--</div>-->
+              </div>
+              <div>
+                <!--<div class="tooltip">-->
+                  <img src="icons/fullScreen.png" alt="FullScreen" width='24' id="graph-btn" style="cursor:pointer"/>
+                  <span class="tooltiptext">full screen</span>
+                <!--</div>-->
+              </div>
             </div>
             <div id="status-pane" class="noselect">
                 <textarea id="statusBox" readonly></textarea>

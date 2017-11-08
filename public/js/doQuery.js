@@ -495,39 +495,40 @@ var DoQuery = {
 
         var sGraph = this.contextList[context]
 
-        // This processes both DOQuery and GetEdges reguests.
         // the DOQuery results will contain '__class__' element but the GetEdges
         // doesn't
-        if (qResult.__class__ === '_Projection')
+        if (qResult.__class__ != null)
         {
-          var elemArray = qResult.p
-          for (var i = 0; i < elemArray.length; i++ ) {
-            var elemObj = elemArray[i]
-            var fromId = elemObj.from
-            var fromClass = elemObj.fromClass
-            Utils.addNodeToGraph(sGraph.graph, fromId, fromClass)
-            var toId = elemObj.to
-            var toClass = elemObj.toClass
-            Utils.addNodeToGraph(sGraph.graph, toId, toClass)
-            var edgeAttribute = elemObj.attribute
-            Utils.addEdgeToGraph(sGraph.graph, fromId, toId, edgeAttribute)
+          if (qResult.__class__ === '_Projection')
+          {
+            var elemArray = qResult.p
+            for (var i = 0; i < elemArray.length; i++ ) {
+              var elemObj = elemArray[i]
+              var fromId = elemObj.from
+              var fromClass = elemObj.fromClass
+              Utils.addNodeToGraph(sGraph.graph, fromId, fromClass)
+              var toId = elemObj.to
+              var toClass = elemObj.toClass
+              Utils.addNodeToGraph(sGraph.graph, toId, toClass)
+              var edgeAttribute = elemObj.attribute
+              Utils.addEdgeToGraph(sGraph.graph, fromId, toId, edgeAttribute)
+            }
+          }
+          else // regular class results or class projection
+          {
+            Utils.addNodeToGraph(sGraph.graph, qResult.__identifier__, 
+                    qResult.__class__, qResult /*node.data*/)
+          }
+          if (qResult.nodes != null) // multiple nodes.
+          {
+            // TBD...
+          }
+
+          if (qResult.edges != null) // multiple edges.
+          {
+            // TBD...
           }
         }
-        else // regular class results or class projection
-        {
-          Utils.addNodeToGraph(sGraph.graph, qResult.__identifier__, 
-                  qResult.__class__, qResult /*node.data*/)
-        }
-        if (qResult.nodes != null) // multiple nodes.
-        {
-          // TBD...
-        }
-
-        if (qResult.edges != null) // multiple edges.
-        {
-          // TBD...
-        }
-
         if (qResult.status != null) // display status in the status window
         {
             // this is a hack to allow for similarity results to show on the windows.

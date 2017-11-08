@@ -18,6 +18,17 @@ void string_to_oid(const char* str, /* out: */ ooId& oid) {
   oid._slot = slot;
 }
 
+// replace douple quotes with single to allow for JSON string representation
+void replace_douple_quotes(char* str)
+{
+  for (int i = 0; i < strlen(str); i++)
+  {
+    if (str[i] == '\"')
+      str[i] = '\'';
+  }
+}
+
+
 ObjyAccess::ObjyAccess(string connectionString) : 
     _connectionString(connectionString) {
   _connection = objy::db::Connection::connect(connectionString.c_str());
@@ -111,63 +122,67 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   const int argc = 1;
   
   try {
-      //printf("Executing Query: '%s'\n", qString);
+      //printf("Executing Query: \'%s\'\n", qString.c_str());
       objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::ReadOnly, "read");
-      //const objy::expression::language::Language* lang = objy::expression::language::LanguageRegistry::lookupLanguage("DO");
-      //objy::expression::ExpressionTreeHandle eHandle = lang->parse(queryString);
-      //eHandle->addRef();
-      objy::statement::Statement doStatement(/*eHandle */ qString.c_str());
+      try {
+        objy::statement::Statement doStatement(/*eHandle */ qString.c_str());
 
-      // Add the identifier to the results projection.
-      objy::policy::Policies policies;
-      policies.add("AddIdentifier.enable", true);
+        // Add the identifier to the results projection.
+        objy::policy::Policies policies;
+        policies.add("AddIdentifier.enable", true);
 
-      objy::data::Variable results = doStatement.execute(policies);
+        objy::data::Variable results = doStatement.execute(policies);
 
-      objy::data::LogicalType::type logicalType = results.specification()->logicalType();
-      //printf("results spec: %s\n", objy::data::LogicalType::toString(logicalType));
+        objy::data::LogicalType::type logicalType = results.specification()->logicalType();
+        //printf("results spec: %s\n", objy::data::LogicalType::toString(logicalType));
 
-      if (logicalType == objy::data::LogicalType::Sequence) {
-        objy::data::Sequence sequence = results.get<objy::data::Sequence>();
-        objy::data::Variable sequenceItem;
-        int count = 0;
-        while (sequence.next()) {
-          sequence.current(sequenceItem);
+        if (logicalType == objy::data::LogicalType::Sequence) {
+          objy::data::Sequence sequence = results.get<objy::data::Sequence>();
+          objy::data::Variable sequenceItem;
+          int count = 0;
+          while (sequence.next()) {
+            sequence.current(sequenceItem);
+            stringstream os;
+            sequenceItem.toJSON(os);
+  //          string queryResults = "Sequence Query results: " + os.str();
+  //          v8::Local<v8::Value> argv[argc] = { Nan::New(queryResults.c_str()).ToLocalChecked() };
+            v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
+            Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+            count++;
+            if (maxResults != -1 && count >= maxResults)
+            {
+              //printf("... we reached max results.\n");
+              break;
+            }
+          }
+          if (count == 0) // nothing available, we'll return an empty JSON
+          {
+            //printf("results: %d\n", count);
+            v8::Local<v8::Value> argv[argc] = { Nan::New("{}").ToLocalChecked() };
+            Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+          }
+        } 
+        else {
           stringstream os;
-          sequenceItem.toJSON(os);
-//          string queryResults = "Sequence Query results: " + os.str();
-//          v8::Local<v8::Value> argv[argc] = { Nan::New(queryResults.c_str()).ToLocalChecked() };
+          results.toJSON(os);
+          //string queryResults = "Query results: " + os.str();
           v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
           Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
-          count++;
-          if (maxResults != -1 && count >= maxResults)
-            break;
         }
-        if (count == 0) // nothing available, we'll return an empty JSON
-        {
-          //printf("results: %d\n", count);
-          v8::Local<v8::Value> argv[argc] = { Nan::New("{}").ToLocalChecked() };
-          Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
-        }
+      } catch (objy::UserException& e) {
+        ObjyAccess::reportError(cb, e.what());
+        printf("error1.1: %s\n", e.what());
       } 
-      else {
-        stringstream os;
-        results.toJSON(os);
-        //string queryResults = "Query results: " + os.str();
-        v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
-        Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
-      }
-
+      
+      //printf("committing transaction.\n");
       tx->commit();
       tx->release();    
   } catch (ooKernelException& e) {
     ObjyAccess::reportError(cb, e.what());
-    printf("error1: %s\n", e.what());
-    return;
+    printf("error2.1: %s\n", e.what());
   } catch (ooBaseException& e) {
     ObjyAccess::reportError(cb, e.what());
-    printf("error2: %s\n", e.what());
-    return;
+    printf("error2.2: %s\n", e.what());
   }
 
 }
@@ -212,11 +227,9 @@ void ObjyAccess::Update(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   } catch (ooKernelException& e) {
     ObjyAccess::reportError(cb, e.what());
     printf("error1: %s\n", e.what());
-    return;
   } catch (ooBaseException& e) {
     ObjyAccess::reportError(cb, e.what());
     printf("error2: %s\n", e.what());
-    return;
   }
 
 }
@@ -260,11 +273,9 @@ void ObjyAccess::GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   } catch (ooKernelException& e) {
     ObjyAccess::reportError(cb, e.what());
     printf("error1: %s\n", e.what());
-    return;
   } catch (ooBaseException& e) {
     ObjyAccess::reportError(cb, e.what());
     printf("error2: %s\n", e.what());
-    return;
   }
 
 }
@@ -302,57 +313,61 @@ void ObjyAccess::GetEdges(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   try {
       //printf("Executing Query: '%s'\n", qString);
       objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::ReadOnly, "read");
-      //objy::data::Reference objRef = objy::data::referenceFor(oid);
-      objy::data::Object obj = objy::data::objectFor(oid);
-      objy::data::Class targetClass = objy::data::lookupClass("ooObj");
-      objy::data::Sequence sequence = obj.edges(NULL, NULL, targetClass, false);
-        objy::data::Variable sequenceItem;
-        int count = 0;
-        while (sequence.next()) {
-          sequence.current(sequenceItem);
-          stringstream os;
-          sequenceItem.toJSON(os);
-          v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
-          Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
-          count++;
-          if (maxResults != -1 && count >= maxResults)
-            break;
-        }
-        if (count == 0) // nothing available, we'll return an empty JSON
-        {
-          //printf("results: %d\n", count);
-          v8::Local<v8::Value> argv[argc] = { Nan::New("{}").ToLocalChecked() };
-          Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
-        }
+      try {
+        objy::data::Object obj = objy::data::objectFor(oid);
+        objy::data::Class targetClass = objy::data::lookupClass("ooObj");
+        objy::data::Sequence sequence = obj.edges(NULL, NULL, targetClass, false);
+          objy::data::Variable sequenceItem;
+          int count = 0;
+          while (sequence.next()) {
+            sequence.current(sequenceItem);
+            stringstream os;
+            sequenceItem.toJSON(os);
+            v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
+            Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+            count++;
+            if (maxResults != -1 && count >= maxResults)
+              break;
+          }
+          if (count == 0) // nothing available, we'll return an empty JSON
+          {
+            //printf("results: %d\n", count);
+            v8::Local<v8::Value> argv[argc] = { Nan::New("{}").ToLocalChecked() };
+            Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+          }
+      } catch (objy::UserException& e) {
+        ObjyAccess::reportError(cb, e.what());
+        printf("error3.1: %s\n", e.what());
+      } 
 
       tx->commit();
       tx->release();    
   } catch (ooKernelException& e) {
     ObjyAccess::reportError(cb, e.what());
-    printf("error1: %s\n", e.what());
-    return;
+    printf("error4.1: %s\n", e.what());
   } catch (ooBaseException& e) {
     ObjyAccess::reportError(cb, e.what());
-    printf("error2: %s\n", e.what());
-    return;
+    printf("error4.2: %s\n", e.what());
   }
 
 }
 
 void ObjyAccess::reportError(v8::Local<v8::Function> cb, const char* errorMessage) 
 {
+  const int buffSize = 1024;
+  char errorStr[1024];
+  strncpy(errorStr, errorMessage, buffSize-1);
+  errorStr[buffSize-1] = '\0';
+  
+  //printf("reportError: %s\n", errorStr);
   const int argc = 1;
-  char buffer[1024];
-  sprintf(buffer, "{\"status\":\"ERROR: %s\"}", errorMessage);
+  
+  char buffer[buffSize];
+  replace_douple_quotes(errorStr);
+  sprintf(buffer, "{\"status\":\"ERROR: %s\"}", errorStr);
   v8::Local<v8::Value> argv[argc] = { Nan::New(buffer).ToLocalChecked() };
   Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
 }
-//void ObjyAccess::Query2(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-//  v8::Local<v8::Function> cb = info[0].As<v8::Function>();
-//  const unsigned argc = 1;
-//  v8::Local<v8::Value> argv[argc] = { Nan::New("Query world (CB)").ToLocalChecked() };
-//  Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
-//}
 
 void ObjyAccess::doQueryTest(const char* queryString)
 {
@@ -386,9 +401,7 @@ void ObjyAccess::doQueryTest(const char* queryString)
       tx->release();    
   } catch (ooKernelException& e) {
     printf("error: %s\n", e.what());
-    return;
   } catch (ooBaseException& e) {
     printf("error: %s\n", e.what());
-    return;
   }
 }

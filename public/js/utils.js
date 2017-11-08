@@ -81,12 +81,13 @@ var simpleTemplate = '<div class="arrow"></div>' +
 	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
 
 var ToolTipSelectiveAttributes = {
-  'Block' : ["m_Id", "m_Version", "m_Time", "m_Hash", "m_Transactions"],
-  'Transaction' : ["m_Id", "m_Hash", "m_Inputs", "m_Outputs"],
-  'Input' : ["m_IsCoinBase"],
-  'Output' : ["m_Value"],
-  'Address' : ["m_Hash", "m_Outputs"],
-  'Tag' : ['m_Label', 'm_Ref']
+  'Block'       : ["m_Id", "m_Version", "m_Time", "m_Hash", "m_Transactions"],
+  'Transaction' : ["m_Id", "m_Hash", "m_MintTime", "m_InValue", "m_OutValue", 
+                   "m_Inputs", "m_Outputs"],
+  'Input'       : ["m_IsCoinBase"],
+  'Output'      : ["m_Value"],
+  'Address'     : ["m_Hash", "m_Outputs"],
+  'Tag'         : ['m_Label', 'm_Ref']
 };
 
 var simpleTemplate2 = '<div class="arrow"></div>' +
@@ -164,6 +165,9 @@ function getNodeData(node) {
   return node.data
 }
 
+/*
+ * processes attributs of the node for the tooltip 
+ */
 function getElements(node) {
   var attributes = ToolTipSelectiveAttributes[node.label];
   var data = getNodeData(node);
@@ -171,7 +175,8 @@ function getElements(node) {
   for (var prop in data) {
     //console.log("prop; ", prop, " - value: ", data[prop]);
     if (attributes == null || (attributes != null && attributes.includes(prop)))
-      html_string += '<tr><th>' + prop + '</th><td>' + data[prop] + '</td></tr>';
+      html_string += '<tr><th>' + prop + "</th><td>" + 
+            data[prop] + '</td></tr>';
   }
   
   return html_string

@@ -16,7 +16,8 @@ var WebSocketHandler = {
                     //console.log("wsReady is: " + wsReady)
                     writeToStatus("... socket connnection is ready.");
                 // send request to socket...
-                window.ws.send(JSON.stringify(msg));
+                if (window.ws != null)
+                    window.ws.send(JSON.stringify(msg));
 //					this.resultHandler = handler
             }, 1000);
         }

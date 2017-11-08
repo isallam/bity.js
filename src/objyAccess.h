@@ -10,6 +10,7 @@
 #include <objy/statement/Statement.h>
 #include <objy/policy/Policies.h>
 #include <objy/expression/language/LanguageRegistry.h>
+#include <objy/Exception.h>
 
 using namespace std;
 

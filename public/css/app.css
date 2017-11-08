@@ -302,10 +302,21 @@ table {
     border-collapse: collapse;
     width: 100%;
 }
-td, th {
+th {
     border: 1px solid #dddddd;
     text-align: left;
     padding: 4px;
+    user-select: none;
+}
+td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 4px;
+    user-select: text;
+}
+td::selection {
+  color: white;
+  background: lightcoral;
 }
 
 tr:nth-child(even) {
