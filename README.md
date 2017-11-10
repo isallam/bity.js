@@ -10,8 +10,8 @@ $ npm install --save bindings
 
 we'll also need to install 'ws' and 'express' to run the server
 ```text
-$ npm install —save ws
-$ npm install —save express
+$ npm install --save ws
+$ npm install --save express
 ```
 
 make sure the correction path and version number of Objectivity is definined in binding.gyp
