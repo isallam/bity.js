@@ -15,14 +15,15 @@ $ npm install --save express
 ```
 
 make sure the correction path and version number of Objectivity is definined in binding.gyp
-build the objyaccess node project
+build the objyaccess nodejs project
 ```text
 $ node-gyp rebuild
 ```
 
 
 ## To run the server
+### make sure to soruce the objy installation setup.sh for the library path availability
 ```text
-$ node server
+$ nodejs server
 ```
 

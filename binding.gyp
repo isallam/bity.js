@@ -10,7 +10,7 @@
         '_GLIBCXX_USE_CXX11_ABI=0'
       ],
       'include_dirs' : [
-        "<!(node -e \"require('nan')\")",
+        "<!(nodejs -e \"require('nan')\")",
         "/opt/Objectivity/<(objyver)/include"
       ],
       'sources': [
