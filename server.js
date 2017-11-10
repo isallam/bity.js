@@ -10,11 +10,20 @@ var events = require('events');
 //var cursor = ansi(process.stdout);
 var objyAccess  = require('bindings')('objyaccess');
 
-var doAccess = new objyAccess.ObjyAccess("/home/ibrahim/projects/blockparser/data/bitcoin.boot");
+// make sure we have a valid path to the bootfile passed as an argument
+if (process.argv.length <= 2) {
+    console.log("Usage: " + __filename + " <bootfile_path>");
+    process.exit(-1);
+}
+ 
+var bootfile_path = process.argv[2];
+ 
+console.log('using BootFile: ' + bootfile_path);
+
+var doAccess = new objyAccess.ObjyAccess(bootfile_path);
 
 console.log('querying FD: ', doAccess.connection()); 
 
-console.log('try query()')
 doAccess.query("From Block return count(*)", function(msg) {
   console.log(msg);
 })
