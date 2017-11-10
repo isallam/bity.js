@@ -162,13 +162,13 @@ function getNodeData(node) {
     // request data from the server
     //var qString = 'from ' + node.label + ' where $$ID==' + node.id + ' return *;'
     var urlstring = location.origin+'/objyget/oid/' + node.id + '?';  //Your URL
-    console.log('Sending request: ', urlstring)
+    //console.log('Sending request: ', urlstring)
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", urlstring, false); // not async call
     xhttp.setRequestHeader("Content-type", "application/json");
     xhttp.send();
     var response = JSON.parse(xhttp.responseText);
-    console.log('Got response: ', response)
+    //console.log('Got response: ', response)
     // update the original node info as well.
     var graphNode = this.sigmaGraph.graph.nodes(node.id)
     if (graphNode != null)
@@ -263,3 +263,10 @@ function attributeToDO(className, attr) {
   return attributeString;
 }
 
+function getDateTime(epoch) {
+  // some how DateTime are coming as strings...
+  var date = new Date(Number(epoch));
+  //console.log("Date: " + date.toISOString());
+  var isoString = date.toISOString();
+  return isoString;
+}

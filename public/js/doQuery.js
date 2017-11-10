@@ -24,7 +24,7 @@ var DoQuery = {
     applyTimeSpanFilter : function (e) {
       var v = e.target.value;
       var minTimeValue = document.getElementById('min-time-value');
-      minTimeValue.textContent = getTime(v);
+      minTimeValue.textContent = getDateTime(v);
 
       filter = sigma.plugins.filter(window.sigmaGraph);
       
@@ -33,7 +33,7 @@ var DoQuery = {
         .nodesBy(
           function(n, options) {
             if (n.label === 'Transaction' && n.data != null)
-              return n.data.m_MintTime <= options.maxTimeVal;
+              return Date.parse(n.data.m_MintTime) <= options.maxTimeVal;
             else 
               return true; // leave everything else
           },
@@ -414,14 +414,15 @@ var DoQuery = {
 
         this.currentLayout();
         
-        var gMaxTime = 0;
-        var gMinTime = Number.MAX_SAFE_INTEGER;
+        var gMaxTime = Date.parse('2009-01-03 18:15:05');
+        var gMinTime = Date.now();
 
 		sGraph.graph.nodes().forEach(function(n) {
           var nodeType = getCorrectType(n.label)
             if (nodeType === 'Transaction' && n.data != null) {
-                gMaxTime = Math.max(gMaxTime, n.data.m_MintTime);
-                gMinTime = Math.min(gMinTime, n.data.m_MintTime);
+              var mint_time = Date.parse(n.data.m_MintTime);
+              gMaxTime = Math.max(gMaxTime, mint_time);
+              gMinTime = Math.min(gMinTime, mint_time);
             }
 		  });
 
@@ -431,8 +432,8 @@ var DoQuery = {
           {
             this.timeSpan.max = gMaxTime;
             this.timeSpan.min = gMinTime;
-            this.maxTimeValue.textContent = getTime(gMaxTime);
-            this.minTimeValue.textContent = getTime(gMinTime);
+            this.maxTimeValue.textContent = getDateTime(gMaxTime);
+            this.minTimeValue.textContent = getDateTime(gMinTime);
           }
           
         //  

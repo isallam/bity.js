@@ -75,6 +75,9 @@
     <!-- for lcoate -->
     <script src="libs/plugins/sigma.plugins.locate/sigma.plugins.locate.js"></script>
 
+    <!-- for filtering -->
+    <script src="libs/plugins/sigma.plugins.filter/sigma.plugins.filter.js"></script>
+    
     <!-- for fullscreen -->
     <script src="libs/plugins/sigma.plugins.fullScreen/sigma.plugins.fullScreen.js"></script>
 
@@ -302,9 +305,10 @@
                   <!-- Will toggle this control based on the clicked icon -->
                   <div id="time-control" style="visibility: hidden">
                      <!--<span>Time: </span><br>-->
-                     <span id="min-time-value" style="font-size: 60%">0</span><br>
-                     <input id="time-span" class="time-span-range" type="range" min="0" max="0" value="0">
-                     <span id="max-time-value" style="font-size: 60%">0</span><br>
+                     <span id="min-time-value" style="font-size: 60%">2009-01-03 18:15:05</span><br>
+                     <input id="time-span" class="time-span-range" type="range" 
+                            min="0" max="1000" value="0">
+                     <span id="max-time-value" style="font-size: 60%">2017-09-15 00:16:05</span><br>
                    </div>
                 </div>
                  <div>
