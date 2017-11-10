@@ -118,9 +118,19 @@ function getNodeSize (label) {
 	return retVal
 };
 
+function getCorrectType(nodeType) {
+  // we'll use the same icon for type projection
+  if (nodeType.endsWith('_Projection'))
+    return nodeType.substring(0, nodeType.indexOf('_'))
+  else
+    return nodeType
+}
+
 function getColor (label) {
 	var retVal = '#556677'
 
+    label = getCorrectType(label)
+    
 	if (!iconUrls[label]) {
 		console.error("Unknown URL for node with label: " + label);
 	}
@@ -132,13 +142,16 @@ function getColor (label) {
 	return retVal
 };
 
-function getUrl (type) {
+function getUrl (nodeType) {
+  
+  nodeType = getCorrectType(nodeType)
   retVal = 'icons/blue.png'
-  if (!iconUrls[type]) {
-    console.error("Unknown URL for node with type: " + type);
+  
+  if (!iconUrls[nodeType]) {
+    console.error("Unknown URL for node with type: " + nodeType);
   }
   else {
-    retVal = iconUrls[type][0]
+    retVal = iconUrls[nodeType][0]
   }
   return retVal
 };

@@ -143,46 +143,61 @@ body {
 #model-graph {
     /*top: 30px;*/
     position: absolute;
-    bottom: 125px;
+    bottom: 50px;
     right: 30px;
     opacity:0.8;
     z-index: 9999;
 }
 
-#documents-btn {
+#time-control {
     /*top: 30px;*/
     position: absolute;
-    bottom: 125px;
-    right: 10px;
-    opacity:0.8;
-    z-index: 9999;
-}
-
-#graph-btn {
-    /*top: 30px;*/
-    position: absolute;
-    bottom: 95px;
-    right: 10px;
+    bottom: 50px;
+    right: 40px;
+    width: 100px;
     opacity:0.8;
     z-index: 9999;
 }
 
 #options-btn-set {
     position: absolute;
-    /*top: 60px;*/
+    height: 80%;
     right: 5px;
-    /*width: 5%;*/
-    /*hight: 4%;*/
-    opacity: 0.8;
-    vertical-align: text-top;
+    width: 5%;
     margin: 2px 2px;
     z-index: 9999;
 }
 
-#options-btn-set img {
+#options-btn-set1 {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    /*width: 5%;*/
+    /*hight: 4%;*/
+    opacity: 0.8;
+    /*vertical-align: text-top;*/
+    /*margin: 2px 2px;*/
+    z-index: 9999;
+}
+
+#options-btn-set2 {
+    position: absolute;
+    /*top: 70%;*/
+    right: 0px;
+    bottom: 0px;
+    /*width: 5%;*/
+    /*hight: 4%;*/
+    opacity: 0.8;
+    vertical-align: text-top;
+    /*margin: 2px 2px;*/
+    z-index: 9999;
+}
+
+#options-btn-set1 img, #options-btn-set2 img {
     margin: 5px 5px;
     cursor: pointer;
 }
+
 
 #pattern-config {
     display: none; /* Hidden by default */

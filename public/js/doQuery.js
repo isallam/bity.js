@@ -15,8 +15,36 @@ var DoQuery = {
         // this.basketList = document.getElementById('basketList');
         // this.serviceList = document.getElementById('serviceList');
         // this.firmList = document.getElementById('firmList');
-
+        this.timeSpan = document.getElementById('time-span');
+        this.maxTimeValue = document.getElementById('max-time-value');
+        this.minTimeValue = document.getElementById('min-time-value');
+        this.timeSpan.addEventListener("input", this.applyTimeSpanFilter);  
     },
+
+    applyTimeSpanFilter : function (e) {
+      var v = e.target.value;
+      var minTimeValue = document.getElementById('min-time-value');
+      minTimeValue.textContent = getTime(v);
+
+      filter = sigma.plugins.filter(window.sigmaGraph);
+      
+      filter
+        .undo('time-span')
+        .nodesBy(
+          function(n, options) {
+            if (n.label === 'Transaction' && n.data != null)
+              return n.data.m_MintTime <= options.maxTimeVal;
+            else 
+              return true; // leave everything else
+          },
+          {
+            maxTimeVal: +v
+          },
+          'time-span'
+        )
+        .apply();
+    },
+
     locateNode: function (e) {
         var nid = e.target[e.target.selectedIndex].nodeId;
         if (nid == '') {
@@ -89,7 +117,7 @@ var DoQuery = {
             //console.log('selectedNodes: ', nodes);
             var s = event.target.sigmaInstance;
             s.graph.nodes().forEach(function (node) {
-                node.color = getColor(node);
+                node.color = getColor(node.label);
                 node.size = 5;
             })
             nodes.forEach(function (node) {
@@ -99,6 +127,10 @@ var DoQuery = {
 
             s.refresh();
             s.controller.selectedNodes = nodes;
+            setTimeout(function() {
+              lasso.deactivate();
+              s.refresh({ skipIdexation: true });
+            }, 0);
         });
         return lasso;
     },
@@ -285,11 +317,9 @@ var DoQuery = {
         // set the current layout to the force one
         this.currentLayout = this.doForceLayout;
 
-        this.lasso = this.configureLasso(this.sigmaGraph);
-        this.configureLocate();
-        configureTooltip(this.sigmaGraph);
-
-        window.activeState = activeState = sigma.plugins.activeState(this.sigmaGraph);
+        window.activeState = sigma.plugins.activeState(this.sigmaGraph);
+        // Initialize the Select plugin:
+        this.select = sigma.plugins.select(this.sigmaGraph, window.activeState);
 
         // // Initialize the FullScreen plugin with a button:
         // // TBD... perhaps we can move this to a global location.
@@ -298,24 +328,44 @@ var DoQuery = {
         //     btnId : 'graph-btn'
         //   });
         
+        // Initialize the dragNodes plugin:
+        //var dragListener = sigma.plugins.dragNodes(s, s.renderers[0], activeState);
         // configure drag
         var dragListener = sigma.plugins.dragNodes(this.sigmaGraph, 
-          this.sigmaGraph.renderers[0], activeState);
-        dragListener.bind('startdrag', function(event) {
-          window.activeState.addNodes(event.data.node.id);
-          //window.activeState.addNeighbors();
-          console.log(event);
-        });
-        dragListener.bind('drag', function(event) {
-          console.log(event);
-        });
-        dragListener.bind('drop', function(event) {
-          console.log(event);
-        });
-        dragListener.bind('dragend', function(event) {
-          window.activeState.dropNodes();
-          console.log(event);
-        });
+          this.sigmaGraph.renderers[0], window.activeState);
+//        dragListener.bind('startdrag', function(event) {
+//          window.activeState.addNodes(event.data.node.id);
+//          //window.activeState.addNeighbors();
+//          console.log(event);
+//        });
+//        dragListener.bind('drag', function(event) {
+//          console.log(event);
+//        });
+//        dragListener.bind('drop', function(event) {
+//          console.log(event);
+//        });
+//        dragListener.bind('dragend', function(event) {
+//          window.activeState.dropNodes();
+//          console.log(event);
+//        });
+//        
+          // halo on active nodes:
+          function renderHalo() {
+            window.sigmaGraph.renderers[0].halo({
+              nodes: window.activeState.nodes()
+            });
+          }
+
+          this.sigmaGraph.renderers[0].bind('render', function(e) {
+            renderHalo();
+          });
+
+        this.lasso = this.configureLasso(this.sigmaGraph);
+        this.select.bindLasso(this.lasso);
+        
+        this.configureLocate();
+        configureTooltip(this.sigmaGraph);
+
     },
     
     doForceLayout: function() {
@@ -363,88 +413,52 @@ var DoQuery = {
         var sGraph = this.contextList[context];
 
         this.currentLayout();
-          
-        this.clearLocateLists();
+        
+        var gMaxTime = 0;
+        var gMinTime = Number.MAX_SAFE_INTEGER;
 
-        var resultsTable = document.getElementById('resultsTable');
-        if (resultsTable != null)
-        {
-	/***
-          // clear the table first.
-          while(resultsTable.rows.length > 1)
+		sGraph.graph.nodes().forEach(function(n) {
+          var nodeType = getCorrectType(n.label)
+            if (nodeType === 'Transaction' && n.data != null) {
+                gMaxTime = Math.max(gMaxTime, n.data.m_MintTime);
+                gMinTime = Math.min(gMinTime, n.data.m_MintTime);
+            }
+		  });
+
+          console.log("MinTime: ", gMinTime);
+          console.log("MaxTime: ", gMaxTime);
+          if (gMaxTime > 0 ) 
           {
-              resultsTable.deleteRow(1);
+            this.timeSpan.max = gMaxTime;
+            this.timeSpan.min = gMinTime;
+            this.maxTimeValue.textContent = getTime(gMaxTime);
+            this.minTimeValue.textContent = getTime(gMinTime);
           }
-
-          // pick the top 10 communications based on emails. the table with the top communication.
-          var items = [];
-          var maxItems = 10;
-          var minCount = 99999999;
-  //        var maxEmailCount = Math.MIN_VALUE;
-
-          sGraph.graph.nodes().forEach(function (n) {
-              if (n.label == 'Transaction') {
-                  if (items.length < maxItems) {
-                      items.push(n);
-                      minCount = Math.min(minCount, n.data.m_Outputs);
-  //                    maxEmailCount = max(maxEmailCount, n.data.emails);
-                  }
-                  else
-                  {
-                      if (n.data.m_Outputs > minCount) {
-                          items.push(n);
-                      }
-
-                  }
-                  items.sort(function(a, b) {
-                     return (b.data.m_Outputs - a.data.m_Outputs);
-                  });
-                  if (items.length > maxItems)
-                      items.pop(); // remove the last smaller item.
-                  //console.log("Array: ", emails);
-              }
-          });
-          if (items.length >0) {
-              items.forEach(function(n, i) {
-                  var hash = n.data.m_Hash;
-                  var outputs = n.data.m_Outputs;
-                  var inputs = n.data.m_Inputs;
-
-                  var tr = resultsTable.insertRow(1);
-                  var td = tr.insertCell(0);
-                  td.innerHTML = hash;
-                  td = tr.insertCell(1);
-                  td.innerHTML = inputs;
-                  td = tr.insertCell(2);
-                  td.innerHTML = outputs;
-              });
-          }
-	***/
-        }
-
+          
+        //  
         // find out if we have more than one transaction in the graph.
         // 
-        var numTransactions = 0;
-        var sGraph = this.contextList[context];
-
-        sGraph.graph.nodes().forEach(function (n) {
-          if (n.label == 'Transaction')
-          {
-            numTransactions += 1;
-          }
-          return numTransactions >= 2;
-        });
-
-        console.log("numTrx: ", numTransactions);
-          // only activate the select-nodes-btn if we have more than 1 transction.
-        if (numTransactions > 1) {
-            Utils.ratifyElem('select-nodes-btn')
-        } else {
-            Utils.eraseElem('select-nodes-btn')
-        }
+//        var numTransactions = 0;
+//        var sGraph = this.contextList[context];
+//
+//        sGraph.graph.nodes().forEach(function (n) {
+//          if (n.label == 'Transaction')
+//          {
+//            numTransactions += 1;
+//          }
+//          return numTransactions >= 2;
+//        });
+//
+//        console.log("numTrx: ", numTransactions);
+//          // only activate the select-nodes-btn if we have more than 1 transction.
+//        if (numTransactions > 1) {
+//            Utils.ratifyElem('select-nodes-btn')
+//        } else {
+//            Utils.eraseElem('select-nodes-btn')
+//        }
 
         if (sGraph.graph.nodes().length > 2)
-          Utils.ratifyElem('select-nodes-pattern-btn');
+          Utils.ratifyElem('select-nodes-btn');
 
         this.inQuery = false;
 

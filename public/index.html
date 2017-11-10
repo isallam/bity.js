@@ -155,7 +155,7 @@
             <textarea id="qbox" cols="100" rows="3"></textarea>
             <div id="max-results-pane">
                 <label>Max Results
-                <input type="number" id="max-results" value="5">
+                <input type="number" id="max-results" value="50">
                 </label>
             </div>
         </div>
@@ -163,6 +163,7 @@
         <div id="workContainer" class="noselect">
             <div id="graphContainer"> </div>
             <div id="options-btn-set" class="noselect">
+              <div id="options-btn-set1">
                 <div class="locateGroup" style="cursor: pointer">
                   <!--
                     <div id="locate-pane" class="locateHover">
@@ -185,7 +186,7 @@
                     -->
                   <div style="cursor:pointer" >
                     <img src="icons/search2.png" alt="search" width='24'/>
-                    </div>
+                  </div>
                 </div>
                 <div style="cursor: pointer">
                   <div class="tooltip">
@@ -237,7 +238,7 @@
                   <div class="tooltip">
                     <img src="icons/mouse_cursor_s.png" alt="SelectSimilar" width='24'
                          id="select-nodes-btn" onclick="doSelectNodes()"/>
-                    <span class="tooltiptext">select nodes (similarity)</span>
+                    <span class="tooltiptext">select nodes</span>
                   </div>
                 </div>
                 <div>
@@ -247,13 +248,13 @@
                     <span class="tooltiptext">do similarity</span>
                   </div>
                 </div>
-                <div>
+<!--                <div>
                   <div class="tooltip">
                     <img src="icons/mouse_cursor_p.png" alt="SelectPattern" width='24'
                          id="select-nodes-pattern-btn" onclick="doPatternSelect()"/>
                     <span class="tooltiptext">select nodes (pattern)</span>
                   </div>
-                </div>
+                </div>-->
                 <div>
                   <div class="tooltip">
                     <img src="icons/similar_p.png" alt="Pattern" width='24'
@@ -268,7 +269,6 @@
                         <div id="class-attributes-config"></div>
                         <input type="button" id="done-pattern-config" class="app-btn" value="Done"/>
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -291,21 +291,36 @@
                          id="table-btn" onclick="doShowResultsTable()"/>
                 </div>
                 -->
-            </div>
-            <div class="noselect">
-              <div>
-                <!--<div class="tooltip">-->
-                  <img src="icons/model.png" alt="Model" width='500' id="model-graph" style="visibility: hidden"/>
-                  <img src="icons/documents1.png" alt="Documents" width='24' id="documents-btn" style="cursor:pointer"
-                        onclick="toggleModelDisplay()"/>
-                  <span class="tooltiptext">model</span>
-                <!--</div>-->
               </div>
-              <div>
-                <!--<div class="tooltip">-->
-                  <img src="icons/fullScreen.png" alt="FullScreen" width='24' id="graph-btn" style="cursor:pointer"/>
-                  <span class="tooltiptext">full screen</span>
-                <!--</div>-->
+              <div id="options-btn-set2">
+                <div style="cursor: pointer">
+                  <div class="tooltip">
+                    <img src="icons/time.png" alt="TimeViewer" width='24'
+                         id="reset-view-btn" onclick="toggleTimeControl()"/>
+                    <span class="tooltiptext">Time viewer</span>
+                  </div>
+                  <!-- Will toggle this control based on the clicked icon -->
+                  <div id="time-control" style="visibility: hidden">
+                     <!--<span>Time: </span><br>-->
+                     <span id="min-time-value" style="font-size: 60%">0</span><br>
+                     <input id="time-span" class="time-span-range" type="range" min="0" max="0" value="0">
+                     <span id="max-time-value" style="font-size: 60%">0</span><br>
+                   </div>
+                </div>
+                 <div>
+                  <div class="tooltip">
+                    <img src="icons/documents1.png" alt="Documents" width='24' style="cursor:pointer"
+                        onclick="toggleModelDisplay()"/>
+                    <span class="tooltiptext">model</span>
+                  </div>
+                  <img src="icons/model.png" alt="Model" width='600' id="model-graph" style="visibility: hidden"/>
+                </div>
+                <div>
+                  <div class="tooltip">
+                    <img src="icons/fullScreen.png" alt="FullScreen" width='24' id="graph-btn" style="cursor:pointer"/>
+                    <span class="tooltiptext">full screen</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div id="status-pane" class="noselect">

@@ -50,7 +50,7 @@ function doInit() {
 	Utils.eraseElem('select-nodes-btn');
     // hide pattern button
     Utils.eraseElem('similar-nodes-pattern-btn');
-    Utils.eraseElem('select-nodes-pattern-btn');
+    //Utils.eraseElem('select-nodes-pattern-btn');
 
 	// hide all the extra GraphContainers.
 	hideOtherGraphContainers();
@@ -137,6 +137,10 @@ function toggleModelDisplay() {
     Utils.toggle('model-graph')
 }
 
+function toggleTimeControl() {
+    Utils.toggle('time-control')
+}
+
 function doShowResultsTable() {
     // showing the results table.
 }
@@ -188,35 +192,46 @@ function toggleShowEdgeLabels() {
 }
 
 function doSelectNodes() {
-		// activate lasso
-		DoQuery.lasso.activate();
-		DoQuery.selectedNodes = null;
-		Utils.eraseElem('select-nodes-btn')
-		Utils.ratifyElem('similar-nodes-btn')
+    // activate lasso
+    DoQuery.lasso.activate();
+    DoQuery.selectedNodes = null;
+    Utils.eraseElem('select-nodes-btn')
+    Utils.ratifyElem('similar-nodes-btn')
+    Utils.ratifyElem('similar-nodes-pattern-btn')
+}
+
+/** 
+ * used to let GUI does the right thing for selecting one of the
+ *  operations for selected nodes.
+ * @returns {undefined}
+ */
+function pickedSelectNodeOperation() {
+	Utils.eraseElem('similar-nodes-btn')
+	Utils.eraseElem('similar-nodes-pattern-btn')
 }
 
 function doNodeSimilarity() {
 	if (DoQuery.selectedNodes.length <= 1) // we need at least two nodes.
 		return;
-
-	Utils.eraseElem('similar-nodes-btn')
+      
+    pickedSelectNodeOperation();
 	DoQuery.lasso.deactivate();
 	DoQuery.doSimilarity(DoQuery)
 }
 
-function doPatternSelect() {
-		// activate lasso
-		DoQuery.lasso.activate();
-		DoQuery.selectedNodes = null;
-		Utils.eraseElem('select-nodes-pattern-btn')
-		Utils.ratifyElem('similar-nodes-pattern-btn')
-}
+//function doPatternSelect() {
+//		// activate lasso
+//		DoQuery.lasso.activate();
+//		DoQuery.selectedNodes = null;
+//		Utils.eraseElem('select-nodes-pattern-btn')
+//		Utils.ratifyElem('similar-nodes-pattern-btn')
+//}
 
 function doPatternSimilarity() {
 	if (DoQuery.selectedNodes.length <= 1) // we need at least two nodes.
 		return;
 
-	Utils.eraseElem('similar-nodes-pattern-btn')
+    pickedSelectNodeOperation();
     DoQuery.lasso.deactivate();
 	var collectedInfos = DoQuery.extractPatternFromNodes()
 
