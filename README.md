@@ -1,5 +1,13 @@
 # bity.js
 
+## Pre-req
+This configuration use nodejs and npm, so make sure have have them installed.
+```text
+# on Ubuntu...
+$ sudo apt install nodejs
+$ sudo apt install npm
+```
+
 ## To Build:
 
 install 'nan' and 'bindings'
