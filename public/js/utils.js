@@ -81,13 +81,14 @@ var simpleTemplate = '<div class="arrow"></div>' +
 	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
 
 var ToolTipSelectiveAttributes = {
-  'Block'       : ["m_Id", "m_Version", "m_Time", "m_Hash", "m_Transactions"],
-  'Transaction' : ["m_Id", "m_Hash", "m_MintTime", "m_InValue", "m_OutValue", 
-                   "m_Inputs", "m_Outputs"],
-  'Input'       : ["m_IsCoinBase"],
-  'Output'      : ["m_Value"],
-  'Address'     : ["m_Hash", "m_Outputs"],
-  'Tag'         : ['m_Label', 'm_Ref']
+  'Block'       : ["_Id", "_Version", "_Time", "_Hash", "_Transactions"],
+  'Transaction' : ["_Id", "_Hash", "_MintTime", "_InValue", "_OutValue", 
+                   "_Parents", "_Outputs"],
+  'GenTransaction' : ["_Id", "_Hash", "_MintTime", "_InValue", "_OutValue", 
+                   "m_IsCoinBase", "_Outputs"],
+  'Output'      : ["_Value"],
+  'Address'     : ["_Hash", "_Outputs"],
+  'Tag'         : ['_Label', '_Ref']
 };
 
 var simpleTemplate2 = '<div class="arrow"></div>' +
