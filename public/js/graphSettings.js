@@ -8,24 +8,24 @@ var graphSettings = {
     edgeHaloSize: 8,
     
     minEdgeSize: 0.5,
-    maxEdgeSize: 1,
-    minNodeSize: 2,
+    maxEdgeSize: 2,
+    minNodeSize: 0.5,
     maxNodeSize: 8,
 //	edgeColor: 'default', // we are using source edge color.
 //			    defaultEdgeColor: 'red',
 //			    animationsTime: 5000,
-//			    drawLabels: true,
+	drawLabels: true,
+    //labelSize: 'proportional',
 //			    //scalingMode: 'outside',
     labelColor: 'node',
     batchEdgesDrawing: true,
     hideEdgesOnMove: false,
-    minArrowSize: 1,
+    minArrowSize: 10,
     defaultEdgeArrow: 'source',
     drawEdgeLabel: true,
     edgeLabelSize: 'proportional',
 //			    sideMargin: 2,
-    nodeBorderSize: 2,
-    //labelSize: 'proportional',
+    nodeBorderSize: 1,
     defaultNodeBorderColor: '#fff',
     defaultNodeHoverBorderColor: '#fff',
 
@@ -44,17 +44,17 @@ var graphSettings = {
     spriteSheetMaxSprites: 8,    // number max of sprites
 
     // try to prevent zoon on double clicking...
-    //doubleClickEnabled: false
-    doubleClickZoomingRatio: 1.2,
+    doubleClickEnabled: false
+    //doubleClickZoomingRatio: 1.2,
 };
 
 var iconUrls = {
     'Block'       : ['icons/bank.png', '#4C6A92'],
     'Transaction' : ['icons/bitcoin.png', '#e2641f'],
-    'GenTransaction' : ['icons/bank.png', '#F7CAC9'],
+    'GenTransaction' : ['icons/bank.png', '#914014'],
 //    'Input'       : ['icons/graph-icons/TransactionEvent.png', '#F7CAC9'],
-    'Output'      : ['icons/graph-icons/TransactionEvent.png', '#cc0c29'],
-    'Address'     : ['icons/address.png', '#229954'],
+    'Output'      : ['icons/graph-icons/TransactionEvent.png', '#adedc8'], //#aebfb4
+    'Address'     : ['icons/address.png', '#1db755'],
     'Tag'         : ['icons/graph-icons/Task.png', '#838487']
 };
 

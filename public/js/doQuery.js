@@ -233,7 +233,7 @@ var DoQuery = {
 //		  console.log(e.type, e.data.edge, e.data.captor);
 //		});
         // the following to clear the halo.
-        this.sigmaGraph.bind('clickStage doubleClickStage rightClickStage', function (e) {
+        this.sigmaGraph.bind('clickStage rightClickStage', function (e) {
             console.log(e.type, e.data.captor);
             e.target.renderers[0].halo({
                 nodes: {},

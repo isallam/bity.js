@@ -59,9 +59,10 @@ var Utils = {
             id: edgeId,
             source: fromId,
             target: toId,
-            size: 0.4,
-            //level: 2,
-            type: 'curve',
+            size: 20,
+//            level: 2,
+            type: 'curvedArrow',
+            arrowRatio: 3,
             // color: getEdgeColor(sGraph.graph, qResult.edge.source),
             hover_color: '#000',
             label: edgeAttribute
@@ -81,14 +82,14 @@ var simpleTemplate = '<div class="arrow"></div>' +
 	'  <div class="sigma-tooltip-footer">Number of connections: {{degree}}</div>';
 
 var ToolTipSelectiveAttributes = {
-  'Block'       : ["_Id", "_Version", "_Time", "_Hash", "_Transactions"],
-  'Transaction' : ["_Id", "_Hash", "_MintTime", "_InValue", "_OutValue", 
-                   "_Parents", "_Outputs"],
-  'GenTransaction' : ["_Id", "_Hash", "_MintTime", "_InValue", "_OutValue", 
-                   "m_IsCoinBase", "_Outputs"],
-  'Output'      : ["_Value"],
-  'Address'     : ["_Hash", "_Outputs"],
-  'Tag'         : ['_Label', '_Ref']
+  'Block'       : ["_id", "_version", "_time", "_hash", "_transactions"],
+  'Transaction' : ["_id", "_hash", "_mintTime", "_inValue", "_outValue", 
+                   "_numParents", "_numChildren", "_numOutputs"],
+  'GenTransaction' : ["_id", "_hash", "_mintTime", "_inValue", "_outValue", 
+                   "_isCoinBase", "numChildren", "_numOutputs"],
+  'Output'      : ["_value"],
+  'Address'     : ["_hash", "_outputsValue", "_numOutputs"],
+  'Tag'         : ['_label', '_ref']
 };
 
 var simpleTemplate2 = '<div class="arrow"></div>' +

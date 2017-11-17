@@ -5,19 +5,19 @@
  */
 
 var querys = {
-  'Q01' : 'from Block where m_Id==99 return *',
-  'Q02' : 'MATCH p = (:Block{m_Id==0})-[:m_Transactions]->(:Transaction)' +
-            '-[:m_Outputs]->(:Output)-->(:Address) RETURN p',
-  'Q03' : 'MATCH p = (:Block{m_Id==0})-->(:Transaction)-->(:Output)' +
-            '-->(:Address)-->(:Output)-->(:Transaction)-->(:Input{m_IsCoinBase == false})' + 
-            '-->() RETURN p',
-  'Q04' : 'match p = (:Address {m_Hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
-              '-->()-->(:Transaction)-->(:Input)-->(:Transaction) return p',
-  'Q05' : 'MATCH p = (:Transaction {length(m_Inputs)==1 and length(m_Outputs)>200})-->()-->() return p',
-  'Q06' : 'MATCH p = (:Transaction {length(m_Inputs)>200 and length(m_Outputs)==1})-->() return p',
-  'Q07' : 'match p = (:Transaction)-->(:Input {m_IsCoinBase == false}) return p',
-  'Q08' : 'match p = (:Transaction {length(m_Inputs) > 100 and length(m_Outputs) > 10})' +
-            '-->(:Input {m_IsCoinBase == false}) return p'
+  'Q01' : 'from Block where _id==99 return *',
+  'Q02' : 'MATCH p = (:Block{_id==0})-[:_transactions]->(:Transaction)' +
+            '-[:_outputs]->(:Output)-->(:Address) RETURN p',
+  'Q03' : 'MATCH p = (:Block{_id==0})-->(:Transaction)-->(:Output)' +
+            '-->(:Address)-->(:Output)-->(:Transaction)-->()' + 
+            ' RETURN p',
+  'Q04' : 'match p = (:Address {_hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
+              '-->()-->(:Transaction)-->(:GenTransaction) return p',
+  'Q05' : 'MATCH p = (:Transaction {_numParents==1 and _numOutputs>200})-->()-->() return p',
+  'Q06' : 'MATCH p = (:Transaction {_numParents>200 and _numOutputs==1})-->() return p',
+  'Q07' : 'match p = (:GenTransaction)-->()-->() return p',
+  'Q08' : 'match p = (:Transaction {_numParents > 100 and _numOutputs > 10})' +
+            '-->(:GenTransaction) return p'
 };
 
 //var qboxDefaultText = 'from Address return *';
