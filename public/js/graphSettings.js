@@ -52,7 +52,7 @@ var iconUrls = {
     'Block'       : ['icons/bank.png', '#4C6A92'],
     'Transaction' : ['icons/bitcoin.png', '#e2641f'],
     'GenTransaction' : ['icons/bank.png', '#914014'],
-//    'Input'       : ['icons/graph-icons/TransactionEvent.png', '#F7CAC9'],
+    'Input'       : ['icons/graph-icons/TransactionEvent.png', '#F7CAC9'],
     'Output'      : ['icons/graph-icons/TransactionEvent.png', '#adedc8'], //#aebfb4
     'Address'     : ['icons/address.png', '#1db755'],
     'Tag'         : ['icons/graph-icons/Task.png', '#838487']

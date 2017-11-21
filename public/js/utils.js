@@ -83,12 +83,13 @@ var simpleTemplate = '<div class="arrow"></div>' +
 
 var ToolTipSelectiveAttributes = {
   'Block'       : ["_id", "_version", "_time", "_hash", "_transactions"],
-  'Transaction' : ["_id", "_hash", "_mintTime", "_inValue", "_outValue", 
-                   "_numParents", "_numChildren", "_numOutputs"],
+  'Transaction' : ["_id", "_blockId", "_hash", "_mintTime", "_inValue", "_outValue", 
+                   "_numInputs", "_numOutputs", "_isCoinBase"],
   'GenTransaction' : ["_id", "_hash", "_mintTime", "_inValue", "_outValue", 
                    "_isCoinBase", "numChildren", "_numOutputs"],
-  'Output'      : ["_value"],
-  'Address'     : ["_hash", "_outputsValue", "_numOutputs"],
+  'Input'       : ["_index", "_value", "_parentIndex"],
+  'Output'      : ["_index", "_value"],
+  'Address'     : ["_hash", "_outValue", "_numOutputs"],
   'Tag'         : ['_label', '_ref']
 };
 
