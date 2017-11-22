@@ -1,6 +1,6 @@
 .sigma-tooltip {
 /*  max-width: 240px;*/
-  max-height: 280px;
+  max-height: 340px;
   background-color: rgb(249, 247, 237);
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   border-radius: 6px;
@@ -123,3 +123,19 @@
     border-style: solid;
     border-color: transparent transparent transparent #555;
 }
+
+.sigma-tooltip-body ul { 
+	/*position:absolute;*/ 
+    left:2px; top:-2px; z-index:999;
+	width:120px;
+	margin:0; padding:2px; list-style:none;
+	/*background:#fff; color:#333;*/
+}
+.sigma-tooltip-body ul li {
+	padding:2px;
+	border-bottom: solid 1px #ccc;
+}
+.sigma-tooltip-body ul li:hover {
+	background:#394182; color:#fff;
+}
+.sigma-tooltip-body ul li:last-child { border:none }

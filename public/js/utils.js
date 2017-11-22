@@ -191,8 +191,15 @@ function getElements(node) {
   for (var prop in data) {
     //console.log("prop; ", prop, " - value: ", data[prop]);
     if (attributes == null || (attributes != null && attributes.includes(prop)))
+    {
+      var cellValue = data[prop];
+      if (['_value', '_inValue', '_outValue'].includes(prop))
+      { // adjust the value to bitcoin and not satoshi
+        cellValue = cellValue / 100000000.0;
+      }
       html_string += '<tr><th>' + prop + "</th><td>" + 
-            data[prop] + '</td></tr>';
+            cellValue + '</td></tr>';
+    }
   }
   
   return html_string

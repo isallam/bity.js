@@ -2,6 +2,7 @@
 #define _OBJYACCESS_H_
 
 #include <string>
+#include <list>
 #include <nan.h>
 #include <ooObjy.h>
 #include <objy/db/Connection.h>
@@ -27,6 +28,8 @@ class ObjyAccess : public Nan::ObjectWrap {
   static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetConnection(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void Query(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void sendResults(v8::Local<v8::Function>& cb, list<string>& resList);
+
   static void Update(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetEdges(const Nan::FunctionCallbackInfo<v8::Value>& info);

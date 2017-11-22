@@ -22,7 +22,7 @@ var querys = {
 };
 
 //var qboxDefaultText = 'from Address return *';
-var qboxDefaultText = querys['Q09'];
+var qboxDefaultText = querys['Q02'];
 
 function getQuery(queryKey) {
   return querys[queryKey];
@@ -280,7 +280,16 @@ function processSelection() {
 function doTag() {
   var elem = document.getElementById("tag-text");
   var oid = elem.getAttribute("oid");
-  console.log("taging object, OID: " + oid + " with", elem.value);
+  //console.log("taging object, OID: " + oid + " with", elem.value);
+  DoQuery.closeToolTip();
   DoQuery.tag('graphContainer', oid, elem.value);
 }
 
+function getClickedStageMenu(event) {
+  var stageMenu = document.getElementById('stage-menu');
+  console.log('stage menu clicked...')
+}
+function getAllNodesData() {
+  DoQuery.closeToolTip();
+  DoQuery.getAllNodesData('graphContainer');
+}

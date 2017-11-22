@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "objyAccess.h"
 
 
@@ -92,6 +94,20 @@ void ObjyAccess::GetConnection(const Nan::FunctionCallbackInfo<v8::Value>& info)
   //info.GetReturnValue().Set(Nan::New("Blah Blah").ToLocalChecked());
 }
 
+void ObjyAccess::sendResults(v8::Local<v8::Function>& cb, list<string>& resList){
+  const int argc = 1;
+  string res = "[";
+  for (auto itr = resList.begin(); itr != resList.end(); )
+  {
+    res += *itr; 
+    itr++;
+    if (itr != resList.end()) res += ",";
+    else res+= "]";
+  }
+  v8::Local<v8::Value> argv[argc] = { Nan::New(res.c_str()).ToLocalChecked() };
+  Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+}
+
 void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
   v8::Isolate* isolate = info.GetIsolate();
@@ -140,20 +156,33 @@ void ObjyAccess::Query(const Nan::FunctionCallbackInfo<v8::Value>& info) {
           objy::data::Sequence sequence = results.get<objy::data::Sequence>();
           objy::data::Variable sequenceItem;
           int count = 0;
+          list<string> resList;
           while (sequence.next()) {
             sequence.current(sequenceItem);
             stringstream os;
             sequenceItem.toJSON(os);
-  //          string queryResults = "Sequence Query results: " + os.str();
-  //          v8::Local<v8::Value> argv[argc] = { Nan::New(queryResults.c_str()).ToLocalChecked() };
-            v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
-            Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+            if (resList.size() >= 10) {
+              // sending what we have
+              sendResults(cb, resList);
+              resList.clear();
+            }
+            else {
+              // accumulate results
+              resList.push_back(os.str());
+            }
+//            v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
+//            Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
             count++;
             if (maxResults != -1 && count >= maxResults)
             {
               //printf("... we reached max results.\n");
               break;
             }
+          }
+          // if we still have results we need to send them
+          if (resList.size() > 0) {
+              // send what we have
+              sendResults(cb, resList);
           }
           if (count == 0) // nothing available, we'll return an empty JSON
           {

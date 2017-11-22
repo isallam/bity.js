@@ -105,6 +105,25 @@ body {
     cursor: pointer;
 }
 
+.app-btn-menu
+{
+    bottom:5px;
+    left: 50%;
+    width: 120px;
+    height: 20px;
+	font-size:12px;
+	/*line-height:16px;*/
+	text-align:center;
+    color:white;
+	/*display:block;*/
+    border-radius: 2px;
+	/*opacity:0.8;*/
+	/*border:2px solid #838487;*/
+    margin: 3px 3px 3px 3px;
+    box-shadow: 3px 3px 6px #999999;
+    cursor: pointer;
+}
+
 #status-pane {
     /*top: 30px;*/
     bottom: 5px;

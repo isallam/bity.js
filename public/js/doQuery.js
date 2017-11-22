@@ -364,8 +364,11 @@ var DoQuery = {
         this.select.bindLasso(this.lasso);
         
         this.configureLocate();
-        configureTooltip(this.sigmaGraph);
-
+        this.tooltipInstance = configureTooltip(this.sigmaGraph);
+    },
+    
+    closeToolTip: function() {
+      this.tooltipInstance.close();
     },
     
     doForceLayout: function() {
@@ -400,13 +403,19 @@ var DoQuery = {
         document.body.style.cursor = 'wait';
         // this.expandNodeId = nodeId;
     },
+    getAllNodesData: function(context) {
+        var sGraph = this.contextList[context];
+		sGraph.graph.nodes().forEach(function(n) {
+            getNodeData(n);
+  		  });
+    },
     /***
      * allow us to do any post query stuff
      * @param context
      */
     executeCompleted: function (context) {
 
-        console.log("EXECUTE Completed!!!");
+        //console.log("EXECUTE Completed!!!");
 
         document.body.style.cursor = 'auto';
 
@@ -474,8 +483,8 @@ var DoQuery = {
     {
         this.containerName = containerName;
         
-        var doStatement = "Create @Tag {m_Label = \"" + 
-                              tagText + "\", m_Ref = " + oid + "}";
+        var doStatement = "Create @Tag {_label = \"" + 
+                              tagText + "\", _ref = " + oid + "}";
 
         writeToStatus("Tagging using DO: " + doStatement)
 
@@ -510,39 +519,35 @@ var DoQuery = {
 
         var sGraph = this.contextList[context]
 
-        // the DOQuery results will contain '__class__' element but the GetEdges
-        // doesn't
-        if (qResult.__class__ != null)
-        {
-          if (qResult.__class__ === '_Projection')
-          {
-            var elemArray = qResult.p
-            for (var i = 0; i < elemArray.length; i++ ) {
-              var elemObj = elemArray[i]
-              var fromId = elemObj.from
-              var fromClass = elemObj.fromClass
-              Utils.addNodeToGraph(sGraph.graph, fromId, fromClass)
-              var toId = elemObj.to
-              var toClass = elemObj.toClass
-              Utils.addNodeToGraph(sGraph.graph, toId, toClass)
-              var edgeAttribute = elemObj.attribute
-              Utils.addEdgeToGraph(sGraph.graph, fromId, toId, edgeAttribute)
+        // we might get an array of results
+        if (Array.isArray(qResult)) {
+          qResult.forEach(function(elemnt) {
+            // the DOQuery results will contain '__class__' element but the GetEdges
+            // doesn't
+            if (elemnt.__class__ != null)
+            {
+              if (elemnt.__class__ === '_Projection')
+              {
+                var elemArray = elemnt.p
+                for (var i = 0; i < elemArray.length; i++ ) {
+                  var elemObj = elemArray[i]
+                  var fromId = elemObj.from
+                  var fromClass = elemObj.fromClass
+                  Utils.addNodeToGraph(sGraph.graph, fromId, fromClass)
+                  var toId = elemObj.to
+                  var toClass = elemObj.toClass
+                  Utils.addNodeToGraph(sGraph.graph, toId, toClass)
+                  var edgeAttribute = elemObj.attribute
+                  Utils.addEdgeToGraph(sGraph.graph, fromId, toId, edgeAttribute)
+                }
+              }
+              else // regular class results or class projection
+              {
+                Utils.addNodeToGraph(sGraph.graph, elemnt.__identifier__, 
+                        elemnt.__class__, elemnt /*node.data*/)
+              }
             }
-          }
-          else // regular class results or class projection
-          {
-            Utils.addNodeToGraph(sGraph.graph, qResult.__identifier__, 
-                    qResult.__class__, qResult /*node.data*/)
-          }
-          if (qResult.nodes != null) // multiple nodes.
-          {
-            // TBD...
-          }
-
-          if (qResult.edges != null) // multiple edges.
-          {
-            // TBD...
-          }
+          });
         }
         if (qResult.status != null) // display status in the status window
         {

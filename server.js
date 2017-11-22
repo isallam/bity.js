@@ -52,7 +52,7 @@ wss.on('connection', function (ws) {
         var doStatement = messageData['doStatement']
         doAccess.query(doStatement, Number(maxResult), function(res) {
           var objectAsJson = JSON.parse(res)
-          console.log('result: ', objectAsJson)
+          //console.log('result: ', objectAsJson)
           if (objectAsJson.__class__ !== '_Projection')
           { // normal class data so we need to collapsed the arrays to just a number
             for (var attr in objectAsJson)
