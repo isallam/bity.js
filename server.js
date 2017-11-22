@@ -70,7 +70,7 @@ wss.on('connection', function (ws) {
       } else if (qType == 'GetEdges') {
         var objRef = messageData['objRef']
         doAccess.getEdges(objRef, Number(maxResult), function(res) {
-          console.log('result: ', res)
+          //console.log('result: ', res)
           ws.send(JSON.stringify({qType: qType, context: qContext, 
             data: JSON.parse(res), moreResults: true}))
           count++
@@ -83,7 +83,22 @@ wss.on('connection', function (ws) {
             data: JSON.parse(res), moreResults: true}));
           count++;
         })
-      }
+      } else if (qType == 'GetData') {
+        var oidListStr = messageData['oids'] // oids are passed as "oid1 oid2...."
+        doAccess.getData(oidListStr, function(res) {
+          var objectAsJson = JSON.parse(res)
+          for (var attr in objectAsJson)
+          {
+            if (objectAsJson[attr] instanceof Array) {
+              objectAsJson[attr] = objectAsJson[attr].length
+            }
+          }
+          console.log('processed res: ', objectAsJson)
+          ws.send(JSON.stringify({qType: qType, context: qContext, 
+            data: objectAsJson, moreResults: true}))
+          count++
+        })
+      } 
       ws.send(JSON.stringify({qType: qType, context: qContext, data: null, moreResults: false}));
     } else {
       console.log("message ignored: ", data);
@@ -126,7 +141,6 @@ objyRouter.get('/oid/:oid', function(req, res) {
   if (oid != null) {
     doAccess.getObject(oid, function(qRes) {
       var objectAsJson = JSON.parse(qRes)
-      console.log('result: ', objectAsJson)
       for (var attr in objectAsJson)
       {
 //        console.log('prop: ', attr)
@@ -134,7 +148,7 @@ objyRouter.get('/oid/:oid', function(req, res) {
           objectAsJson[attr] = objectAsJson[attr].length
         }
       }
-//      console.log('processed res: ', objectAsJson)
+      console.log('processed res: ', objectAsJson)
       res.json(objectAsJson)
     })
   }

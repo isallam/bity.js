@@ -33,6 +33,7 @@ class ObjyAccess : public Nan::ObjectWrap {
   static void Update(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetEdges(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void GetData(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static Nan::Persistent<v8::Function> constructor;
   
   string _connectionString;

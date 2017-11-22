@@ -1,4 +1,5 @@
 #include <sstream>
+#include <vector>
 
 #include "objyAccess.h"
 
@@ -53,6 +54,7 @@ void ObjyAccess::Init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "update", Update);
   Nan::SetPrototypeMethod(tpl, "getObject", GetObject);
   Nan::SetPrototypeMethod(tpl, "getEdges", GetEdges);
+  Nan::SetPrototypeMethod(tpl, "getData", GetData);
 
   constructor.Reset(tpl->GetFunction());
   exports->Set(Nan::New("ObjyAccess").ToLocalChecked(), tpl->GetFunction());
@@ -380,6 +382,69 @@ void ObjyAccess::GetEdges(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   }
 
 }
+
+void ObjyAccess::GetData(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+  v8::Isolate* isolate = info.GetIsolate();
+  ObjyAccess* obj = ObjectWrap::Unwrap<ObjyAccess>(info.Holder());
+  ooId oid;
+  int maxResults = -1;
+  v8::Local<v8::Function> cb;
+  vector<string> oidList;
+  
+  if (info[0]->IsString())
+  {
+    v8::String::Utf8Value oidlist(info[0]->ToString());
+    string oidListStr = (char*)(*oidlist);
+    istringstream buffer(oidListStr);
+    string oidStr;
+    while(buffer >> oidStr) {
+      oidList.push_back(oidStr);
+    }
+  }
+  else {
+    isolate->ThrowException(v8::Exception::TypeError(
+      v8::String::NewFromUtf8(isolate, "Missing valid OID string.")));
+    return;
+  }
+
+  cb = info[1].As<v8::Function>();
+  
+  const int argc = 1;
+  
+  try {
+      //printf("Executing Query: '%s'\n", qString);
+      objy::db::Transaction* tx = new objy::db::Transaction(objy::db::OpenMode::ReadOnly, "read");
+      try {
+        for (auto itr = oidList.begin(); itr != oidList.end(); itr++)
+        {
+          ooId oid;
+          string_to_oid(itr->c_str(), oid);
+
+          objy::data::Object obj = objy::data::objectFor(oid);
+          objy::data::Variable var(obj);
+          stringstream os;
+          var.toJSON(os);
+          v8::Local<v8::Value> argv[argc] = { Nan::New(os.str().c_str()).ToLocalChecked() };
+          Nan::MakeCallback(Nan::GetCurrentContext()->Global(), cb, argc, argv);
+        }
+      } catch (objy::UserException& e) {
+        ObjyAccess::reportError(cb, e.what());
+        printf("error5.1: %s\n", e.what());
+      } 
+
+      tx->commit();
+      tx->release();    
+  } catch (ooKernelException& e) {
+    ObjyAccess::reportError(cb, e.what());
+    printf("error5.2: %s\n", e.what());
+  } catch (ooBaseException& e) {
+    ObjyAccess::reportError(cb, e.what());
+    printf("error5.3: %s\n", e.what());
+  }
+
+}
+
 
 void ObjyAccess::reportError(v8::Local<v8::Function> cb, const char* errorMessage) 
 {

@@ -68,7 +68,32 @@ var Utils = {
             label: edgeAttribute
         })
       }
-    }
+    },
+    
+    updateGraphNode : function(graph, nodeId, nodeClass, nodeData) {
+        var node = graph.nodes(nodeId);
+        if (node == null) {
+          graph.addNode( {
+            id: nodeId,
+            label: nodeClass,
+            x: Math.random(),
+            y: Math.random(),
+            level: 3,
+            size: getNodeSize(nodeClass), //Math.random(),
+            color: getColor(nodeClass), //'#666',
+            image: {
+                url: getUrl(nodeClass),
+                // scale/clip are ratio values applied on top of 'size'
+                scale: 1.2,
+                clip: 1.0,
+            },
+            data: nodeData
+          })
+        } else {
+          node.data = nodeData
+        }
+    },
+    
 };
 
 var simpleTemplate = '<div class="arrow"></div>' +

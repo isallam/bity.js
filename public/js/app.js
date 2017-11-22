@@ -5,6 +5,7 @@
  */
 
 var querys = {
+  'Q00' : 'match p = (:Transaction {_isCoinBase == true})-->()-->(:Address {_numOutputs > 200}) return p',
   'Q01' : 'from Transaction where _outValue/100000000 >= 1000 return *',
   'Q02' : 'MATCH p = (:Block{_id==0})-[:_transactions]->(:Transaction)' +
             '-[:_outputs]->(:Output)-->(:Address) RETURN p',
@@ -13,16 +14,19 @@ var querys = {
             ' RETURN p',
   'Q04' : 'match p = (:Address {_hash == "1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v"})' +
               '-->()-->(:Transaction)-->(:Input)-->(:Transaction {_isCoinBase == true}) return p',
-  'Q05' : 'MATCH p = (:Transaction {_numInputs==1 and _numOutputs>200})-->()-->() return p',
+  'Q05' : 'MATCH p = (:Transaction {_numInputs==1 and _numOutputs>500})-->()-->() return p',
   'Q06' : 'MATCH p = (:Transaction {_numInputs>200 and _numOutputs==1})-->() return p',
   'Q07' : 'match p = (:Transaction {_isCoinBase == true})-->()-->() return p',
   'Q08' : 'match p = (:Transaction {_numInputs > 100 and _numOutputs > 10})' +
             '-->(:Input)-->(:Transaction {_isCoinBase == true}) return p',
-  'Q09' : 'match p = (:Transaction {_isCoinBase == true})-->()-->(:Address {_numOutputs > 200}) return p'
+  'Q09' : 'match paths p = (:Transaction {_numInputs == 2 && _numOutputs == 1})\n\
+            -[*2..4]->(:Transaction {_numInputs == 2 && _numOutputs == 1})\n\
+            -[*1..2]->(:Transaction { _numInputs == 2 && _numOutputs == 1}) return p',
+  'Q99' : 'match p = (:Transaction {_isCoinBase == true})-->()-->(:Address {_numOutputs > 200}) return p'
 };
 
 //var qboxDefaultText = 'from Address return *';
-var qboxDefaultText = querys['Q02'];
+var qboxDefaultText = querys['Q00'];
 
 function getQuery(queryKey) {
   return querys[queryKey];

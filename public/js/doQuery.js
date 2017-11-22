@@ -23,8 +23,8 @@ var DoQuery = {
 
     applyTimeSpanFilter : function (e) {
       var v = e.target.value;
-      var minTimeValue = document.getElementById('min-time-value');
-      minTimeValue.textContent = getDateTime(v);
+      var maxTimeValue = document.getElementById('max-time-value');
+      maxTimeValue.textContent = getDateTime(v);
 
       filter = sigma.plugins.filter(window.sigmaGraph);
       
@@ -33,7 +33,7 @@ var DoQuery = {
         .nodesBy(
           function(n, options) {
             if (n.label === 'Transaction' && n.data != null)
-              return Date.parse(n.data.m_MintTime) <= options.maxTimeVal;
+              return Date.parse(n.data._mintTime) <= options.maxTimeVal;
             else 
               return true; // leave everything else
           },
@@ -229,12 +229,12 @@ var DoQuery = {
 //		s.bind('clickNode doubleClickNode rightClickNode', function(e) {
 //		  console.log(e.type, e.data.node.label, e.data.captor);
 //		});
-//		s.bind('clickEdge doubleClickEdge rightClickEdge', function(e) {
-//		  console.log(e.type, e.data.edge, e.data.captor);
-//		});
+		this.sigmaGraph.bind('clickEdge doubleClickEdge rightClickEdge', function(e) {
+		  console.log(e.type, e.data.edge, e.data.captor);
+		});
         // the following to clear the halo.
         this.sigmaGraph.bind('clickStage rightClickStage', function (e) {
-            console.log(e.type, e.data.captor);
+            //console.log(e.type, e.data.captor);
             e.target.renderers[0].halo({
                 nodes: {},
                 edges: {}
@@ -404,10 +404,19 @@ var DoQuery = {
         // this.expandNodeId = nodeId;
     },
     getAllNodesData: function(context) {
+        writeToStatus("get data for all nodes ");
         var sGraph = this.contextList[context];
+        var oidList = '';
 		sGraph.graph.nodes().forEach(function(n) {
-            getNodeData(n);
+            oidList += n.id + ' ';
   		  });
+        var msg = {"qContext": this.graphContainerName,
+            "qType": "GetData", "oids": oidList,
+            "maxResult": -1,
+            "verbose": 2};
+        WebSocketHandler.sendMessage(msg, this);
+        document.body.style.cursor = 'wait';
+        // this.expandNodeId = nodeId;
     },
     /***
      * allow us to do any post query stuff
@@ -429,7 +438,7 @@ var DoQuery = {
 		sGraph.graph.nodes().forEach(function(n) {
           var nodeType = getCorrectType(n.label)
             if (nodeType === 'Transaction' && n.data != null) {
-              var mint_time = Date.parse(n.data.m_MintTime);
+              var mint_time = Date.parse(n.data._mintTime);
               gMaxTime = Math.max(gMaxTime, mint_time);
               gMinTime = Math.min(gMinTime, mint_time);
             }
@@ -510,6 +519,8 @@ var DoQuery = {
         this.processResultForDO(context, qResult);
       else if (qType === 'GetEdges')
         this.processResultForGetEdges(context, qResult);
+      else if (qType === 'GetData')
+        this.processResultForGetData(context, qResult);
     },
     
     processResultForDO: function (context, qResult)
@@ -604,6 +615,15 @@ var DoQuery = {
 
     },
 
+    processResultForGetData: function(context, results) {
+        var sGraph = this.contextList[context]
+        if (Array.isArray(results)) {
+          console.log("... Array results for GetData need impl.")
+        } else {
+          Utils.updateGraphNode(sGraph.graph, results.__identifier__, 
+                  results.__class__, results /*node.data*/)
+        }
+    },
     /****
      *
      * @param controller

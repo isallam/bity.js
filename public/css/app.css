@@ -171,9 +171,9 @@ body {
 #time-control {
     /*top: 30px;*/
     position: absolute;
-    bottom: 50px;
+    bottom: 0px;
     right: 40px;
-    width: 100px;
+    width: 200px;
     opacity:0.8;
     z-index: 9999;
 }

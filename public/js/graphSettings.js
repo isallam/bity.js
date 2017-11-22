@@ -7,9 +7,9 @@ var graphSettings = {
     nodeHaloSize: 10,
     edgeHaloSize: 8,
     
-    minEdgeSize: 0.5,
+    minEdgeSize: 0.1,
     maxEdgeSize: 2,
-    minNodeSize: 0.5,
+    minNodeSize: 0.1,
     maxNodeSize: 8,
 //	edgeColor: 'default', // we are using source edge color.
 //			    defaultEdgeColor: 'red',
@@ -36,7 +36,7 @@ var graphSettings = {
     nodeActiveBorderColor: 'default',
     defaultNodeActiveOuterBorderColor: 'rgb(236, 81, 72)',
 
-    zoomMin: 0.2,
+    zoomMin: 0.1,
     zoomMax: 3,
 
     shortLabelsOnHover: true,    // enable the short label display mode
