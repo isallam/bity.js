@@ -134,15 +134,15 @@ function getTemplate(nodeLabel) {
 function getNodeSize (label) {
 	var retVal = 6;
 
-//	if (label === 'Transaction') {
-//		retVal = node.data.m_Inputs + node.data.m_Outputs/10;
+	if (label === 'Input' || label === 'Output') {
+		retVal = 2;
 //	} else if (label === 'Block') {
 //      retVal = node.data.m_Transactions/10;
 //    } else if (label === 'Address') {
 //      retVal = node.data.m_Outputs/10;
 //    } else if (label === 'Output') {
 //      retVal = node.data.m_Value / 1000000000
-//    }
+    }
 	return retVal
 };
 

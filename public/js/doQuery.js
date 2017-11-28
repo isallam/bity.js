@@ -26,14 +26,25 @@ var DoQuery = {
       var maxTimeValue = document.getElementById('max-time-value');
       maxTimeValue.textContent = getDateTime(v);
 
-      filter = sigma.plugins.filter(window.sigmaGraph);
-      
+      var filter = sigma.plugins.filter(window.sigmaGraph);
+      window.timeSpanNodeSet = new Set()
       filter
         .undo('time-span')
+        .undo('filter_edges1')
+//        .undo('filter_edges2')
         .nodesBy(
           function(n, options) {
             if (n.label === 'Transaction' && n.data != null)
-              return Date.parse(n.data._mintTime) <= options.maxTimeVal;
+            {
+              var val = Date.parse(n.data._mintTime) <= options.maxTimeVal;
+              if (!val) {
+                var adjacentNodes = window.sigmaGraph.graph.adjacentNodes(n.id)
+                adjacentNodes.forEach(function(a) {
+                  window.timeSpanNodeSet.add(a.id);
+                })
+              }
+              return val;
+            }
             else 
               return true; // leave everything else
           },
@@ -42,6 +53,16 @@ var DoQuery = {
           },
           'time-span'
         )
+        .nodesBy(function(n) {
+          if(n.label === 'Input' || n.label === 'Output')
+            return !(window.timeSpanNodeSet.has(n.id));
+          else
+            return true;
+        }, 'filter_edges1')
+//        .edgesBy(function(e) {
+//          if (!(e.from in window.timeSpanNodeList || e.to in window.timeSpanNodeList))
+//            return true;
+//        }, 'filter_edges2')
         .apply();
     },
 
