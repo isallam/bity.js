@@ -36,7 +36,7 @@ var DoQuery = {
           function(n, options) {
             if (n.label === 'Transaction' && n.data != null)
             {
-              var val = Date.parse(n.data._mintTime) <= options.maxTimeVal;
+              var val = Date.parse(n.data._mintTime + '.000Z') <= options.maxTimeVal;
               if (!val) {
                 var adjacentNodes = window.sigmaGraph.graph.adjacentNodes(n.id)
                 adjacentNodes.forEach(function(a) {
@@ -424,12 +424,14 @@ var DoQuery = {
         document.body.style.cursor = 'wait';
         // this.expandNodeId = nodeId;
     },
+    
     getAllNodesData: function(context) {
-        writeToStatus("get data for all nodes ");
+        writeToStatus("Get data for all nodes ");
         var sGraph = this.contextList[context];
         var oidList = '';
 		sGraph.graph.nodes().forEach(function(n) {
-            oidList += n.id + ' ';
+            if (n.data == null)
+              oidList += n.id + ' ';
   		  });
         var msg = {"qContext": this.graphContainerName,
             "qType": "GetData", "oids": oidList,
@@ -439,6 +441,23 @@ var DoQuery = {
         document.body.style.cursor = 'wait';
         // this.expandNodeId = nodeId;
     },
+
+    getAllNodesNeighbors: function(context, handler) {
+        writeToStatus("Get neighbors for all nodes ");
+        var sGraph = this.contextList[context];
+        var oidList = '';
+   		sGraph.graph.nodes().forEach(function(n) {
+            oidList += n.id + ' ';
+        });
+        var maxResults = getMaxResults();
+		var msg = {"qContext": context,
+            "qType": "GetEdges", "oids": oidList,
+            "maxResult": Number(maxResults),
+            "verbose": 2};
+          WebSocketHandler.sendMessage(msg, handler);
+          document.body.style.cursor = 'wait';
+    },
+
     /***
      * allow us to do any post query stuff
      * @param context
@@ -459,14 +478,15 @@ var DoQuery = {
 		sGraph.graph.nodes().forEach(function(n) {
           var nodeType = getCorrectType(n.label)
             if (nodeType === 'Transaction' && n.data != null) {
-              var mint_time = Date.parse(n.data._mintTime);
+              var mint_time = Date.parse(n.data._mintTime + '.000Z');
+              console.log('mintTime: ', n.data._mintTime, ' - conv: ', getDateTime(mint_time));
               gMaxTime = Math.max(gMaxTime, mint_time);
               gMinTime = Math.min(gMinTime, mint_time);
             }
 		  });
 
-          console.log("MinTime: ", gMinTime);
-          console.log("MaxTime: ", gMaxTime);
+          console.log("MinTime: ", getDateTime(gMinTime));
+          console.log("MaxTime: ", getDateTime(gMaxTime));
           if (gMaxTime > 0 ) 
           {
             this.timeSpan.max = gMaxTime;

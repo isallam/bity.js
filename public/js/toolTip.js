@@ -118,8 +118,7 @@ function configureTooltip(sigmaGraph) {
                 '  <div class="sigma-tooltip-body">' +
                 '    <ul>' +
                 '    <li onclick="getAllNodesData()">Get Node Data</li>' +
-                '    <li>Zoom In</li>' +
-                '    <li>Zoom Out</li>' +
+                '    <li onclick="getAllNodesNeighbors()">Get Neighbors</li>' +
                 '    </ul>' +
 //              '     <input type="button" class="app-btn-menu" value="Node Data" onclick="getAllNodesData()"/>' +
 //                '    </div>' +

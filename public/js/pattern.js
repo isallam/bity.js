@@ -166,7 +166,10 @@ function aggregateCollectedInfo(collectedInfo)
     {
       var classAttributes = collectedInfo.objects[i].attributes;
       for (var prop in classAttributes) {
-        if (className !== 'Block' && prop === 'm_Id')
+        // ignore __class__ and __identifier__
+        if (['__class__', '__identifier__', '_outputs', '_inputs', '_transactions', '_tag'].includes(prop))
+          continue;
+        if (className !== 'Block' && prop === '_id')
           continue; // we'll ignore all other m_Id except for block.
         if ((typeof classAttributes[prop] === 'string') &&
            (classAttributes[prop].startsWith('#')))
@@ -232,7 +235,7 @@ function processPaths(pathList)
  */
 function getCorrectedAttrName(attrName)
 {
-  if (attrName === 'm_Inputs' || attrName === 'm_Outputs' || attrName === 'm_Transactions')
+  if (attrName === '_inputs' || attrName === '_outputs' || attrName === '_transactions')
     return "LENGTH(" + attrName + ")";
   return attrName; 
 }

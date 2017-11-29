@@ -302,6 +302,6 @@ function getDateTime(epoch) {
   // some how DateTime are coming as strings...
   var date = new Date(Number(epoch));
   //console.log("Date: " + date.toISOString());
-  var isoString = date.toISOString();
-  return isoString;
+  var utcString = date.toUTCString();
+  return utcString;
 }

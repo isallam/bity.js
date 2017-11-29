@@ -24,6 +24,7 @@ class ObjyAccess : public Nan::ObjectWrap {
   ~ObjyAccess();
   void doQueryTest(const char* queryString);
   static void reportError(v8::Local<v8::Function> cb, const char* errorMessage);
+  static void processOid(ooId& oid, int maxResults, v8::Local<v8::Function>& cb);
   
   static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetConnection(const Nan::FunctionCallbackInfo<v8::Value>& info);
@@ -33,6 +34,7 @@ class ObjyAccess : public Nan::ObjectWrap {
   static void Update(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetObject(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetEdges(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void GetGroupEdges(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void GetData(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static Nan::Persistent<v8::Function> constructor;
   

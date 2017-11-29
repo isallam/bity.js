@@ -6,7 +6,7 @@
 
 var querys = {
   'Q00' : 'match p = (:Transaction {_isCoinBase == true})-->()-->(:Address {_numOutputs > 200}) return p',
-  'Q01' : 'from Transaction where _outValue/100000000 >= 1000 return *',
+  'Q01' : 'from Transaction where _outValue/100000000 >= 100000 return *',
   'Q02' : 'MATCH p = (:Block{_id==0})-[:_transactions]->(:Transaction)' +
             '-[:_outputs]->(:Output)-->(:Address) RETURN p',
   'Q03' : 'MATCH p = (:Block{_id==0})-->(:Transaction)-->(:Output)' +
@@ -22,11 +22,14 @@ var querys = {
   'Q09' : 'match paths p = (:Transaction {_numInputs == 2 && _numOutputs == 1})\n\
             -[*2..4]->(:Transaction {_numInputs == 2 && _numOutputs == 1})\n\
             -[*1..2]->(:Transaction { _numInputs == 2 && _numOutputs == 1}) return p',
+  'Q10' : 'from Address where (_outValue/100000000) >= 400000 return *',
   'Q99' : 'match p = (:Transaction {_isCoinBase == true})-->()-->(:Address {_numOutputs > 200}) return p'
 };
 
 //var qboxDefaultText = 'from Address return *';
 var qboxDefaultText = querys['Q00'];
+
+var doQuery = Object.create(DoQuery)
 
 function getQuery(queryKey) {
   return querys[queryKey];
@@ -78,16 +81,16 @@ function doInit() {
         btnId: 'graph-btn'
     });
 
-    DoQuery.init();
+    doQuery.init();
 }
 
 // add onClick for th eimages.
 
 
-function doQuery() {
+function execQuery() {
     var queryBox = getQueryBox();
     //Utils.ratifyElem('table-btn')
-    DoQuery.execute('graphContainer', queryBox.value);
+    doQuery.execute('graphContainer', queryBox.value);
 }
 
 function getQueryBox() {
@@ -119,23 +122,23 @@ function doResetView() {
     // DoQuery.serviceList.selectedIndex = 0;
     // DoQuery.firmList.selectedIndex = 0;
 
-    if (DoQuery.locate)
-        DoQuery.locate.center(DoQuery.locateZoomDef);
+    if (doQuery.locate)
+        doQuery.locate.center(doQuery.locateZoomDef);
 }
 
 function doLayout1View() {
-  DoQuery.currentLayout = DoQuery.doForceLayout;
-  DoQuery.currentLayout();
+  doQuery.currentLayout = doQuery.doForceLayout;
+  doQuery.currentLayout();
 }
 
 function doLayout2View() {
-  DoQuery.currentLayout = DoQuery.doNicerLayout;
-  DoQuery.currentLayout();
+  doQuery.currentLayout = doQuery.doNicerLayout;
+  doQuery.currentLayout();
 }
 
 function doLayout3View() {
-  DoQuery.currentLayout = DoQuery.doTreeLayout;
-  DoQuery.currentLayout();
+  doQuery.currentLayout = doQuery.doTreeLayout;
+  doQuery.currentLayout();
 }
 
 function toggleModelDisplay() {
@@ -198,8 +201,8 @@ function toggleShowEdgeLabels() {
 
 function doSelectNodes() {
     // activate lasso
-    DoQuery.lasso.activate();
-    DoQuery.selectedNodes = null;
+    doQuery.lasso.activate();
+    doQuery.selectedNodes = null;
     Utils.eraseElem('select-nodes-btn')
     Utils.ratifyElem('similar-nodes-btn')
     Utils.ratifyElem('similar-nodes-pattern-btn')
@@ -216,12 +219,12 @@ function pickedSelectNodeOperation() {
 }
 
 function doNodeSimilarity() {
-	if (DoQuery.selectedNodes.length <= 1) // we need at least two nodes.
+	if (doQuery.selectedNodes.length <= 1) // we need at least two nodes.
 		return;
       
     pickedSelectNodeOperation();
-	DoQuery.lasso.deactivate();
-	DoQuery.doSimilarity(DoQuery)
+	doQuery.lasso.deactivate();
+	doQuery.doSimilarity(doQuery)
 }
 
 //function doPatternSelect() {
@@ -233,12 +236,12 @@ function doNodeSimilarity() {
 //}
 
 function doPatternSimilarity() {
-	if (DoQuery.selectedNodes.length <= 1) // we need at least two nodes.
+	if (doQuery.selectedNodes.length <= 1) // we need at least two nodes.
 		return;
 
     pickedSelectNodeOperation();
-    DoQuery.lasso.deactivate();
-	var collectedInfos = DoQuery.extractPatternFromNodes()
+    doQuery.lasso.deactivate();
+	var collectedInfos = doQuery.extractPatternFromNodes()
 
     var configDiv = document.getElementById('pattern-config-content-internal');
     var createdElements = createPatternGuiNodes(collectedInfos[0], configDiv);
@@ -254,7 +257,7 @@ function doPatternSimilarity() {
       // For now we'll just use the first pattern
       // collectedInfos[0] contain the configured information to construct the
       // DO query.
-      DoQuery.doPatternSimilarity(collectedInfos[0])
+      doQuery.doPatternSimilarity(collectedInfos[0])
     };  
 }
 
@@ -285,15 +288,21 @@ function doTag() {
   var elem = document.getElementById("tag-text");
   var oid = elem.getAttribute("oid");
   //console.log("taging object, OID: " + oid + " with", elem.value);
-  DoQuery.closeToolTip();
-  DoQuery.tag('graphContainer', oid, elem.value);
+  doQuery.closeToolTip();
+  doQuery.tag('graphContainer', oid, elem.value);
 }
 
 function getClickedStageMenu(event) {
   var stageMenu = document.getElementById('stage-menu');
   console.log('stage menu clicked...')
 }
+
 function getAllNodesData() {
-  DoQuery.closeToolTip();
-  DoQuery.getAllNodesData('graphContainer');
+  doQuery.closeToolTip();
+  doQuery.getAllNodesData('graphContainer');
+}
+
+function getAllNodesNeighbors() {
+  doQuery.closeToolTip();
+  doQuery.getAllNodesNeighbors('graphContainer', doQuery);
 }

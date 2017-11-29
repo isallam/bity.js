@@ -69,12 +69,23 @@ wss.on('connection', function (ws) {
         })
       } else if (qType == 'GetEdges') {
         var objRef = messageData['objRef']
-        doAccess.getEdges(objRef, Number(maxResult), function(res) {
-          //console.log('result: ', res)
-          ws.send(JSON.stringify({qType: qType, context: qContext, 
-            data: JSON.parse(res), moreResults: true}))
-          count++
-        })
+        var oidListStr = messageData['oids']
+        if (objRef != null) {
+          doAccess.getEdges(objRef, Number(maxResult), function(res) {
+            //console.log('result: ', res)
+            ws.send(JSON.stringify({qType: qType, context: qContext, 
+              data: JSON.parse(res), moreResults: true}))
+            count++
+          })
+        }
+        else if (oidListStr != null) {
+          doAccess.getGroupEdges(oidListStr, Number(maxResult), function(res) {
+            //console.log('result: ', res)
+            ws.send(JSON.stringify({qType: qType, context: qContext, 
+              data: JSON.parse(res), moreResults: true}))
+            count++
+          })
+        }
       } else if (qType == 'DOUpdate') {
         var doStatement = messageData['doStatement']
         doAccess.update(doStatement, function(res) {
