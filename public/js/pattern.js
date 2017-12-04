@@ -159,6 +159,9 @@ function aggregateCollectedInfo(collectedInfo)
   }
   collectedInfo.node['class'] = className;
   
+  var ignored_attrs = ['__class__', '__identifier__', '_outputs', '_inputs', 
+                        '_transactions', '_tag', '_mintTime']
+  
   if (className !== "")
   {
     // aggregateAttributes
@@ -167,7 +170,7 @@ function aggregateCollectedInfo(collectedInfo)
       var classAttributes = collectedInfo.objects[i].attributes;
       for (var prop in classAttributes) {
         // ignore __class__ and __identifier__
-        if (['__class__', '__identifier__', '_outputs', '_inputs', '_transactions', '_tag'].includes(prop))
+        if (ignored_attrs.includes(prop))
           continue;
         if (className !== 'Block' && prop === '_id')
           continue; // we'll ignore all other m_Id except for block.
