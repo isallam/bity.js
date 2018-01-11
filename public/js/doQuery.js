@@ -170,6 +170,7 @@ var DoQuery = {
             return;
         }
         this.graphContainerName = container
+        doStatement = doStatement.trim()
 
         //clearGraphContainer(container);
         // clear graph container.

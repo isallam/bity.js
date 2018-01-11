@@ -1,5 +1,14 @@
 # bity.js
 
+## Pre-req
+This configuration use nodejs and npm, so make sure have have them installed.
+```text
+# on Ubuntu...
+$ sudo apt install nodejs
+$ sudo apt install npm
+$ sudo npm install -g node-gyp
+```
+
 ## To Build:
 
 install 'nan' and 'bindings'
@@ -26,4 +35,5 @@ $ node-gyp rebuild
 ```text
 $ nodejs server
 ```
+
 
